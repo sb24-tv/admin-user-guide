@@ -3,34 +3,36 @@ interface IRequestInit extends RequestInit {
 		[key: string]: string;
 	};
 }
-
-export default class APIService {
+class APIService {
+	private static instance: APIService;
 	private readonly baseUrl: string;
-	private readonly token: string | null =
-		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDk3LCJpYXQiOjE2ODc1MDgxMDUsImV4cCI6MTg2NzUwODEwNX0.filDUBVpNyFquEGVb6ug9W-6MaOmJREkEWJjP1IgG5Q";
-	
+	private readonly token: string | null = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY4ODA5ODI1OH0.Jndz8lL7IEhnxXzhHMRkroP0eX8DR_pgklxhT_708NE";
 	constructor() {
 		if (import.meta.env.MODE === "production") {
 			this.baseUrl = import.meta.env.VITE_API_PROD
 		} else {
 			this.baseUrl = import.meta.env.VITE_API_DEV
 		}
-		console.log(import.meta.env)
 	}
-	
+
+	public static getInstance(): APIService {
+		if (!APIService.instance) {
+			APIService.instance = new APIService();
+		}
+		return APIService.instance;
+	}
+
 	private async makeRequest<T>(
 		endpoint: string,
 		method: string,
 		data: unknown | null = null
 	): Promise<T> {
-		const url = `${this.baseUrl}/${endpoint}`;
+		const url = `${this.baseUrl}/api/${endpoint}`;
 		const options: IRequestInit = {
 			method,
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${this.token}`,
-				apiKey: import.meta.env.VITE_APIKEY,
-				clientIp: "",
 			},
 		};
 		
@@ -70,3 +72,4 @@ export default class APIService {
 		return this.makeRequest<T>(endpoint, "DELETE");
 	}
 }
+export default  APIService.getInstance();

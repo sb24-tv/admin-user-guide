@@ -6,7 +6,7 @@ interface IRequestInit extends RequestInit {
 class APIService {
 	private static instance: APIService;
 	private readonly baseUrl: string;
-	private readonly token: string | null = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY4ODA5ODI1OH0.Jndz8lL7IEhnxXzhHMRkroP0eX8DR_pgklxhT_708NE";
+	private readonly token: string | null = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY4ODE4MzYzOX0.pOzgW1mfcjOljC20kxy0BGvkgMtSR--kUAUUkLv1GNQ";
 	constructor() {
 		if (import.meta.env.MODE === "production") {
 			this.baseUrl = import.meta.env.VITE_API_PROD

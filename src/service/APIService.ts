@@ -11,9 +11,12 @@ class APIService {
 	private  token: string | null = null;
 	constructor() {
 		this.setToken();
+		// @ts-ignore
 		if (import.meta.env.MODE === "production") {
+			// @ts-ignore
 			this.baseUrl = import.meta.env.VITE_API_PROD
 		} else {
+			// @ts-ignore
 			this.baseUrl = import.meta.env.VITE_API_DEV
 		}
 	}
@@ -62,7 +65,6 @@ class APIService {
 			return await response.json();
 		} catch (error) {
 			console.error("API Request Error:", error);
-			throw error;
 		}
 	}
 	
@@ -70,7 +72,7 @@ class APIService {
 		return this.makeRequest<T>(endpoint, "GET");
 	}
 	
-	public post<T>(endpoint: string, data: { password: string; username: string }): Promise<T> {
+	public post<T>(endpoint: string, data:unknown): Promise<T> {
 		return this.makeRequest<T>(endpoint, "POST", data);
 	}
 	

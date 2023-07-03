@@ -28,7 +28,7 @@ const User = () => {
                         <tr>
                             <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
                                 <p className="text-sm text-black dark:text-white">
-                                    Thim
+                                    SB24
                                 </p>
                             </td>
                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">

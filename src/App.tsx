@@ -1,10 +1,5 @@
 import {Suspense, lazy} from 'react';
 import {Route, Routes} from 'react-router-dom';
-function wait(){
-    return new Promise((resolve)=>{
-        setTimeout(resolve,3000)
-    })
-}
 import ECommerce from './pages/Dashboard/ECommerce';
 import SignIn from './pages/Authentication/SignIn';
 
@@ -24,7 +19,8 @@ const Category = lazy(() => import('./pages/category/Category'));
 const Content = lazy(() => import('./pages/content/Content'));
 const CreateContent = lazy(() => import('./pages/content/CreateContent'));
 const User = lazy(() => import('./pages/user/User'));
-const Loader = lazy(() => wait().then(() => import('./common/Loader'))) ;
+const Loader = lazy(() =>  import('./common/Loader') );
+const CreateCategory = lazy(() => import('./pages/category/CreateCategory'));
 
 function App() {
     const [isLogin] = useMiddleware();
@@ -49,14 +45,14 @@ function App() {
                             </Suspense>
                         }
                     />
-                    {/*<Route*/}
-                    {/*    path="/category/create"*/}
-                    {/*    element={*/}
-                    {/*        <Suspense fallback={<Loader/>}>*/}
-                    {/*            <CreateCategory/>*/}
-                    {/*        </Suspense>*/}
-                    {/*    }*/}
-                    {/*/>*/}
+                    <Route
+                        path="/category/create"
+                        element={
+                            <Suspense fallback={<Loader/>}>
+                                <CreateCategory/>
+                            </Suspense>
+                        }
+                    />
                     <Route
                         path="/content"
                         element={

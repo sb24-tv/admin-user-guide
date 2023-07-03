@@ -9,10 +9,7 @@ const ECommerce = () => {
         <CardOne />
         <CardTwo />
         <CardThree />
-
       </div>
-
-
     </>
   );
 };

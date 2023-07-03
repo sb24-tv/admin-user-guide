@@ -13,7 +13,7 @@ const Content = () => {
 
 
     useEffect(() => {
-        APIService.get(`content?page=${page}`).then((response) => {
+        APIService.get(`content?page=${page}`).then((response: any) => {
             console.log(response)
             if (response.data) {
                 setContent(response.data);

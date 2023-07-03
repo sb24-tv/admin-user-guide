@@ -1,7 +1,8 @@
 import Breadcrumb from '../../components/Breadcrumb.tsx';
-import ProductOne from "../../images/product/product-01.png";
+// import ProductOne from "../../images/product/product-01.png";
 import {useEffect, useState} from "react";
 import APIService from "../../service/APIService.ts";
+import { Link } from "react-router-dom";
 
 const Category = () => {
     const [category, setCategory] = useState([]);
@@ -12,24 +13,35 @@ const Category = () => {
             }
         });
     }, []);
-    console.log(category)
+    // console.log(category)
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
     return (
         <>
             <Breadcrumb pageName="Category"/>
             <div
                 className="rounded-xl bg-white px-5 pt-6 pb-2.5 box-shadow-custom-2 dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
                 <div className="max-w-full overflow-x-auto">
+                    <div className="flex justify-end mb-3">
+                        <Link
+                          to="create"
+                          className="inline-flex items-center justify-center rounded-full bg-primary py-3 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                        >
+                            Create New
+                        </Link>
+                    </div>
                     <table className="w-full table-auto">
                         <thead>
                         <tr className="bg-gray-2 text-left dark:bg-meta-4">
                             <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
-                                Name
+                                Category Name
                             </th>
                             <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
-                                Invoice date
+                                Created Date
                             </th>
                             <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
-                                Order
+                                Active
                             </th>
                             <th className="py-4 px-4 font-medium text-black dark:text-white">
                                 Actions
@@ -64,7 +76,7 @@ const Category = () => {
                             </td>
                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                                 <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
-                                    Paid
+                                    Active
                                 </p>
                             </td>
                             <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">

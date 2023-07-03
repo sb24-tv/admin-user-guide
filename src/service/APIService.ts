@@ -1,3 +1,5 @@
+import { LocalStorageKey } from "../enum";
+
 interface IRequestInit extends RequestInit {
 	headers: {
 		[key: string]: string;
@@ -6,12 +8,24 @@ interface IRequestInit extends RequestInit {
 class APIService {
 	private static instance: APIService;
 	private readonly baseUrl: string;
-	private readonly token: string | null = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY4ODE4MzYzOX0.pOzgW1mfcjOljC20kxy0BGvkgMtSR--kUAUUkLv1GNQ";
+	private  token: string | null = null;
 	constructor() {
+		this.setToken();
 		if (import.meta.env.MODE === "production") {
 			this.baseUrl = import.meta.env.VITE_API_PROD
 		} else {
 			this.baseUrl = import.meta.env.VITE_API_DEV
+		}
+	}
+	
+	private setToken(){
+		const data = window.localStorage.getItem(LocalStorageKey.USER)
+		if (data === null) {
+			/// force logout
+		} else {
+			const {token} = JSON.parse(data)
+			console.log( token);
+			this.token = token
 		}
 	}
 

@@ -1,10 +1,14 @@
-import {Suspense, lazy, useEffect, useState} from 'react';
+import {Suspense, lazy} from 'react';
 import {Route, Routes} from 'react-router-dom';
-
+function wait(){
+    return new Promise((resolve)=>{
+        setTimeout(resolve,3000)
+    })
+}
 import ECommerce from './pages/Dashboard/ECommerce';
 import SignIn from './pages/Authentication/SignIn';
-import SignUp from './pages/Authentication/SignUp';
-import Loader from './common/Loader';
+
+import useMiddleware from "./hooks/useMidleware.ts";
 
 const Calendar = lazy(() => import('./pages/Calendar'));
 const Chart = lazy(() => import('./pages/Chart'));
@@ -20,23 +24,15 @@ const Category = lazy(() => import('./pages/category/Category'));
 const Content = lazy(() => import('./pages/content/Content'));
 const CreateContent = lazy(() => import('./pages/content/CreateContent'));
 const User = lazy(() => import('./pages/user/User'));
+const Loader = lazy(() => wait().then(() => import('./common/Loader'))) ;
 
 function App() {
-    const [loading, setLoading] = useState<boolean>(true);
-
-    useEffect(() => {
-        setTimeout(() => setLoading(false), 1000);
-    }, []);
-
-    return loading ? (
-        <Loader/>
-    ) : (
-        <>
+    const [isLogin] = useMiddleware();
+    return isLogin ? (
+        <Suspense fallback={ <Loader/>}>
             <Routes>
-                <Route path="/auth/signin" element={<SignIn/>}/>
-                <Route path="/auth/signup" element={<SignUp/>}/>
                 <Route element={<DefaultLayout/>}>
-                    <Route index element={<ECommerce/>}/>
+                    <Route path="/" element={<ECommerce/>}/>
                     <Route
                         path="/calendar"
                         element={
@@ -53,6 +49,14 @@ function App() {
                             </Suspense>
                         }
                     />
+                    {/*<Route*/}
+                    {/*    path="/category/create"*/}
+                    {/*    element={*/}
+                    {/*        <Suspense fallback={<Loader/>}>*/}
+                    {/*            <CreateCategory/>*/}
+                    {/*        </Suspense>*/}
+                    {/*    }*/}
+                    {/*/>*/}
                     <Route
                         path="/content"
                         element={
@@ -142,9 +146,11 @@ function App() {
                         }
                     />
                 </Route>
+
+
             </Routes>
-        </>
-    );
+        </Suspense>
+    ) : <SignIn/>;
 }
 
 export default App;

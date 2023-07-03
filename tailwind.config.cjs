@@ -25,6 +25,7 @@ module.exports = {
             graydark: '#333A48',
             'gray-2': '#F7F9FC',
             'gray-3': '#FAFAFA',
+            'gray-4': '#828687',
             whiten: '#F1F5F9',
             whiter: '#F5F7FD',
             boxdark: '#060716',
@@ -48,6 +49,7 @@ module.exports = {
             'orange-dark': '#C77729',
             'gray-box': '#222635',
             'white2': '#fafafa',
+            'input': '#f5f6fa'
         },
         screens: {
             '2xsm': '375px',

@@ -70,7 +70,7 @@ class APIService {
 		return this.makeRequest<T>(endpoint, "GET");
 	}
 	
-	public post<T>(endpoint: string, data: never): Promise<T> {
+	public post<T>(endpoint: string, data: { password: string; username: string }): Promise<T> {
 		return this.makeRequest<T>(endpoint, "POST", data);
 	}
 	

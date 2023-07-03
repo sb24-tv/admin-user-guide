@@ -12,7 +12,8 @@ const Content = () => {
 
 
     useEffect(() => {
-        APIService.get('content', {page: page}).then((response) => {
+        APIService.get(`content?page=${page}`).then((response) => {
+            console.log(response)
             if (response.data) {
                 setContent(response.data);
                 setPage(response.pagination);
@@ -44,6 +45,9 @@ const Content = () => {
                                 <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                     Name
                                 </th>
+                                <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                                    Category
+                                </th>
                                 <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
                                     Created At
                                 </th>
@@ -58,13 +62,19 @@ const Content = () => {
                             <tbody>
                             {
                                 content.map((item, index) => (
-                                    <tr key={index}>
-                                        <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                    <tr key={index} className="border-b border-[#eee] last:border-b-0">
+                                        {/*<td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11 ">*/}
+                                        <td className="py-5 px-4 pl-9 max-w-[250px] dark:border-strokedark xl:pl-11">
                                             <h5 className="font-medium text-black dark:text-white">
                                                 {item.title}
                                             </h5>
                                         </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                        <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                            <Link to={`/category/${item.category.id}`} className="font-medium dark:text-white text-primary ">
+                                                {item.category.name}
+                                            </Link>
+                                        </td>
+                                        <td className="py-5 px-4 dark:border-strokedark">
                                             <p className="text-black dark:text-white">
                                                 {new Date(item.createdAt).toLocaleDateString("en-US", {
                                                     weekday: "short",
@@ -75,12 +85,20 @@ const Content = () => {
                                                 }
                                             </p>
                                         </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                                            <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
-                                                Active
-                                            </p>
+                                        <td className="py-5 px-4 dark:border-strokedark">
+                                            {
+                                                item.allowPublic === true ? (
+                                                    <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
+                                                        Active
+                                                    </p>
+                                                ) : (
+                                                    <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
+                                                        Disable
+                                                    </p>
+                                                )
+                                            }
                                         </td>
-                                        <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                                        <td className="py-5 px-4 dark:border-strokedark">
                                             <div className="flex items-center space-x-3.5">
                                                 <button className="hover:text-primary">
                                                     <svg
@@ -155,10 +173,40 @@ const Content = () => {
                             </tbody>
                         </table>
                     </div>
-                    <Pagination
-                        pages={pages}
-                        pagination={handlePagination}
-                    />
+                    <div className="flex justify-between items-center">
+                    <span>
+                        {
+                            pages.total < pages.limit
+                                ?
+                                <>
+                                    Showing all
+                                    pages ? ' ' + pages.total + ' ' : 0
+                                    results
+                                </>
+                                :
+                                <>
+                                    Showing
+                                    {
+                                        pages.total === 0
+                                            ?
+                                            ` 0 - 0 `
+                                            :
+                                            ` ${(pages.current_page - 1) * pages.limit + 1} - ${(pages.current_page - 1) * pages.limit + content.length} `
+
+                                    }
+                                    of
+                                    {
+                                        pages ? ' ' + pages.total + ' ' : 0
+                                    }
+                                    results
+                                </>
+                        }
+                    </span>
+                        <Pagination
+                            pages={pages}
+                            pagination={handlePagination}
+                        />
+                    </div>
                 </div>
             </div>
         </>

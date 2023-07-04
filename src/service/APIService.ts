@@ -27,7 +27,6 @@ class APIService {
 			/// force logout
 		} else {
 			const {token} = JSON.parse(data)
-			console.log( token);
 			this.token = token
 		}
 	}
@@ -38,12 +37,11 @@ class APIService {
 		}
 		return APIService.instance;
 	}
-
 	private async makeRequest<T>(
 		endpoint: string,
 		method: string,
 		data: unknown | null = null
-	): Promise<T> {
+	): Promise<T | any> {
 		const url = `${this.baseUrl}/api/${endpoint}`;
 		const options: IRequestInit = {
 			method,
@@ -62,7 +60,10 @@ class APIService {
 			if (!response.ok) {
 				throw new Error(`Request failed with status ${response.status}`);
 			}
-			return await response.json();
+			return {
+				data: response.json(),
+				status: response.status
+			}
 		} catch (error) {
 			console.error("API Request Error:", error);
 		}

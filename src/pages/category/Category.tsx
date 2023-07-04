@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 const Category = () => {
     const [category, setCategory] = useState([]);
     useEffect(() => {
-        APIService.get('subcat/1').then((response) => {
+        APIService.get('subcat/1').then((response : any) => {
             if (response.data) {
                 setCategory(response.data);
             }
@@ -50,7 +50,7 @@ const Category = () => {
                         </thead>
                         <tbody>
                         {
-                            category.map((category) => (
+                            category.map((category: any) => (
 
                         <tr>
                             <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">

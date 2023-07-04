@@ -1,12 +1,22 @@
 import Breadcrumb from '../../components/Breadcrumb.tsx';
-import  {useEffect, useState} from "react";
+import  {useEffect, useState,useRef} from "react";
 import APIService from "../../service/APIService.ts";
 export default function CreateCategory (){
     const [category, setCategory] = useState<any[]>([]);
     const [catName, setCatName] = useState("");
+    const inputNameRef = useRef<{value: unknown}>(null)
+    const handlechange = (events) => {
+      setCatName(events.target.value)
+    }
+  console.log(inputNameRef);
+    const handlesubmit = () => {
     
+    
+     
+    }
+    console.log(catName)
     useEffect(() => {
-        APIService.get('subcat/1').then((response) => {
+        APIService.get('subcat/1').then((response:any) => {
             if (response.data) {
                 setCategory(response.data);
             }
@@ -33,6 +43,8 @@ export default function CreateCategory (){
                                             Category Name
                                         </label>
                                         <input
+                                          ref={inputNameRef}
+                                            // value={catName}
                                             type="text"
                                             placeholder="Enter your Category name"
                                             className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -50,9 +62,7 @@ export default function CreateCategory (){
                                           className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                         />
                                     </div>
-
-                                    {}
-
+                                  
                                     <div className="mb-4.5">
                                         <label className="mb-2.5 block text-black dark:text-white">
                                             Parent Category
@@ -123,24 +133,9 @@ export default function CreateCategory (){
                                                             <span className="text-primary">Click to upload</span> or
                                                             drag and drop
                                                         </p>
-                                                        <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
+                                                        <p className="mt-1.5">PNG or JPG </p>
                                                         <p>(max, 800 X 800px)</p>
                                                     </div>
-                                                </div>
-
-                                                <div className="flex justify-end gap-4.5">
-                                                    <button
-                                                      className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                                                      type="submit"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <button
-                                                      className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-70"
-                                                      type="submit"
-                                                    >
-                                                        Save
-                                                    </button>
                                                 </div>
                                             </form>
                                         </div>
@@ -148,8 +143,9 @@ export default function CreateCategory (){
                                 </div>
 
                                 <button
-                                  className="flex justify-center rounded bg-primary px-8 py-2 rounded-xl font-medium text-gray">
-                                    Create
+                                  onClick={handlesubmit}
+                                  className="flex justify-center bg-primary px-8 py-2 rounded-xl font-medium text-gray">
+                                  Create
                                 </button>
                             </div>
                         </form>

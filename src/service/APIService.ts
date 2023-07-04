@@ -61,7 +61,7 @@ class APIService {
 				throw new Error(`Request failed with status ${response.status}`);
 			}
 			return {
-				data: response.json(),
+				data: await response.json(),
 				status: response.status
 			}
 		} catch (error) {

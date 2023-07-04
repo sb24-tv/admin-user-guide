@@ -8,16 +8,15 @@ import {FaRegPenToSquare, FaTrash} from "react-icons/fa6";
 const Content = () => {
     const [searchParams] = useSearchParams();
     const [content, setContent] = useState([]);
-    const [pages, setPage] = useState([]);
+    const [pages, setPage] = useState<any>([]);
     const page = searchParams.get('page');
 
 
     useEffect(() => {
         APIService.get(`content?page=${page}`).then((response: any) => {
-            console.log(response)
-            if (response.data) {
-                setContent(response.data);
-                setPage(response.pagination);
+            if (response.status === 200) {
+                setContent(response.data.data);
+                setPage(response.data.pagination);
             }
         });
     }, [page]);
@@ -62,19 +61,19 @@ const Content = () => {
                             </thead>
                             <tbody>
                             {
-                                content.map((item, index) => (
+                                content.map((item: any, index: number) => (
                                     <tr key={index} className="border-b border-[#eee] last:border-b-0">
                                         {/*<td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11 ">*/}
-                                        <td className="py-5 px-4 pl-9 max-w-[250px] dark:border-strokedark xl:pl-11">
+                                        <td className="py-5 px-4 pl-9 max-w-[220px] dark:border-strokedark xl:pl-11">
                                             <h5 className="font-medium text-black dark:text-white">
                                                 {item.title}
                                             </h5>
                                         </td>
                                         <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
-                                            <Link to={`/category/${item.category.id}`}
+                                            <span
                                                   className="font-medium dark:text-white text-primary ">
                                                 {item.category.name}
-                                            </Link>
+                                            </span>
                                         </td>
                                         <td className="py-5 px-4 dark:border-strokedark">
                                             <p className="text-black dark:text-white">

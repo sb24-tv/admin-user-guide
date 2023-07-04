@@ -20,8 +20,8 @@ const SignIn = () => {
             return;
         }
         APIService.post('users/login', {username, password}).then((res: any) => {
-            if ('user' in res) {
-                localStorage.setItem(LocalStorageKey.USER, JSON.stringify(res.user));
+            if ('user' in res.data) {
+                localStorage.setItem(LocalStorageKey.USER, JSON.stringify(res.data.user));
                 window.location.href = '/';
             }
         }).catch(() => {
@@ -49,7 +49,7 @@ const SignIn = () => {
                             className="my-5 block font-normal  text-base justify-center text-center leading-6 text-gray-4">Thank you for get back to Admin User Guide, lets access our the best recommendation for your</span>
                         <div className="w-full">
                             <div className="mb-6 relative">
-                                <label className="mb-2.5 block font-medium text-black dark:text-white">
+                                <label className="mb-2.5 block font-medium text-gray-5 text-base dark:text-white">
                                     Username
                                 </label>
                                 <div className="relative">
@@ -61,14 +61,14 @@ const SignIn = () => {
                                         value={username}
                                         onKeyPress={handleKeyPress}
                                         onChange={(e) => setUsername(e.target.value)}
-                                        className={`w-full rounded-lg bg-input py-4 pl-4 border pr-10 outline-none focus:border-transparent focus-visible:shadow-none ${requiredUserName ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
+                                        className={`w-full rounded-lg bg-input py-3 pl-4.5 border pr-10 outline-none focus-visible:shadow-none ${requiredUserName ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
                                     />
                                 </div>
                                 {requiredUserName &&
                                     <span className="text-meta-1 left-0 absolute bottom-[-22px] text-sm">Username is required</span>}
                             </div>
                             <div className="mb-8 relative">
-                                <label className="mb-2.5 block font-medium text-black dark:text-white">
+                                <label className="mb-2.5 block font-medium text-gray-5 text-base dark:text-white">
                                     Password
                                 </label>
                                 <div className="relative">
@@ -79,9 +79,9 @@ const SignIn = () => {
                                         value={password}
                                         onKeyPress={handleKeyPress}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className={`w-full rounded-lg bg-input py-4 border pl-4 pr-10 outline-none focus:border-transparent focus-visible:shadow-none ${requiredPassword ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
+                                        className={`w-full rounded-lg bg-input py-3 border pl-4 pr-10 outline-none focus-visible:shadow-none ${requiredPassword ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
                                     />
-                                    <span className="absolute right-2 top-5 cursor-pointer"
+                                    <span className="absolute right-2 top-4 cursor-pointer"
                                           onClick={onClickShowPassword}>
                                         {
                                             showPassword

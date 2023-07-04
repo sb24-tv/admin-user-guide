@@ -10,7 +10,6 @@ const Pagination = ({pagination, pages, searchKey}) => {
     const currentPage = pages.current_page;
 
     const filterKey = searchKey ? `?search=${searchKey}&` : '';
-    console.log(pages)
     return (
         totalPage >= 2 &&
         <ul className="flex items-center justify-start h-full gap-x-4 mt-6 flex-wrap">

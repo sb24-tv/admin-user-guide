@@ -73,7 +73,7 @@ const CreateContent = () => {
                                         </label>
                                         <input
                                             type="text"
-                                            placeholder="Ttile"
+                                            placeholder="Title"
                                             name="title"
                                             ref={titleRef}
                                             className={`w-full rounded-md border bg-input py-3 px-5 font-medium outline-none transition disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input ${requiredTitle ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}

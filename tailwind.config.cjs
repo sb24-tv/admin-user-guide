@@ -50,6 +50,7 @@ module.exports = {
             'orange-dark': '#C77729',
             'gray-box': '#222635',
             'white2': '#fafafa',
+            'white3': '#f8f8f9',
             'input': '#f5f6fa'
         },
         screens: {

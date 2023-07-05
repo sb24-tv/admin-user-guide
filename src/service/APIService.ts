@@ -88,5 +88,22 @@ class APIService {
 	public delete<T>(endpoint: string): Promise<T> {
 		return this.makeRequest<T>(endpoint, "DELETE");
 	}
+
+	public insertFormData<T>(endpoint: string, data: FormData): Promise<T> {
+		const url = `${this.baseUrl}/api/${endpoint}`;
+		const options: IRequestInit = {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${this.token}`,
+			},
+			body: data
+		};
+		return fetch(url, options).then(response => {
+			if (!response.ok) {
+				throw new Error(`Request failed with status ${response.status}`);
+			}
+			return response.json()
+		})
+	}
 }
 export default  APIService.getInstance();

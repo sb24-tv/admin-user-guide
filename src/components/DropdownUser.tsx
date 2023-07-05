@@ -41,11 +41,10 @@ const DropdownUser = () => {
   };
   return (
     <div className="relative">
-      <Link
+      <div
         ref={trigger}
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-4"
-        to="#"
+        className="flex items-center gap-4 cursor-pointer"
       >
         <span className="hidden text-right lg:block p-2">
           <span className="block text-sm font-medium text-black dark:text-white capitalize">
@@ -70,7 +69,7 @@ const DropdownUser = () => {
             fill=""
           />
         </svg>
-      </Link>
+      </div>
 
       {/* <!-- Dropdown Start --> */}
       <div

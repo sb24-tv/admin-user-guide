@@ -27,22 +27,38 @@ function getCategoryValue(getFirstCategory: unknown, getSecondCategory: unknown,
             return null
     }
 }
-const onError = (e: any) => {
-    e.target.src = NoImage;
-}
 
 function TableRow({ data, onSelect }: any) {
+    const onError = (e: any) => {
+        e.target.src = NoImage;
+    }
+    const [searchParams] = useSearchParams();
+    const getFirstCategory = searchParams.get('c1');
+    const getSecondCategory = searchParams.get('c2');
+    const getLastCategory = searchParams.get('c3');
     return data.map((item: any, index: number) => (
-        <tr onClick={() => item.subcategories.length && onSelect(item)} className="border-b border-[#eee] last:border-b-0" key={index}>
-            <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
-
-
+        <tr className="border-b border-[#eee] dark:border-graydark last:border-b-0" key={index}>
+            <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                {
+                    data.length > 0
+                    &&
+                    <p className="text-sm text-black dark:text-white">
+                        {index + 1}
+                    </p>
+                }
+            </td>
+            <td onClick={() => item.subcategories && onSelect(item)}
+                className={`py-5 px-4 pl-9 dark:border-strokedark xl:pl-11 ${item.subcategories && 'cursor-pointer'}`}
+            >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                    <div className="h-12.5 w-15 rounded-md">
-                        <img
-                            src={item.catphoto ? getURL() + '/public/images/' + item.catphoto : NoImage}
-                            alt={item.name} className="w-20" onError={onError} />
-                    </div>
+                    {
+                        !getFirstCategory && !getSecondCategory && !getLastCategory &&
+                        <div className="h-12.5 w-15 rounded-md">
+                            <img
+                                src={item.catphoto ? getURL() + '/public/images/' + item.catphoto : NoImage}
+                                alt={item.name} className="w-20" onError={onError} />
+                        </div>
+                    }
                     <p className="text-base text-black dark:text-white">
                         {item.name}
                     </p>
@@ -71,9 +87,17 @@ function TableRow({ data, onSelect }: any) {
                 </p>
             </td>
             <td className="py-5 px-4 dark:border-strokedark">
-                <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
-                    Active
-                </p>
+                {
+                    item.status === true ? (
+                        <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
+                            Active
+                        </p>
+                    ) : (
+                        <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
+                            Disable
+                        </p>
+                    )
+                }
             </td>
             <td className="py-5 px-4 dark:border-strokedark">
                 <div className="flex items-center space-x-3.5">
@@ -111,32 +135,34 @@ const Category = () => {
     useEffect(() => {
         APIService.get('subcat').then((response: any) => {
             if (response.status == 200) {
-                if (getFirstCategory) {
-                    response.data.data.filter((item: any) => {
-                        if (item.id === parseInt(getFirstCategory)) {
-                            setCategory(item.subcategories);
-                        }
-                    });
-                } else if (getFirstCategory && getSecondCategory ) {
-                    response.data.data.filter((item: any) => {
-                        if (item.id === parseInt(getSecondCategory)) {
-                            setCategory(item.subcategories);
-                        }
-                    });
-                } else if (getFirstCategory && getSecondCategory && getLastCategory) {
-                    response.data.data.filter((item: any) => {
-                        if (item.id === parseInt(getLastCategory)) {
-                            setCategory(item.subcategories);
-                        }
-                    });
+                if (getFirstCategory && !getSecondCategory && !getLastCategory) {
+                    response.data.data.map((item: any) => item.id === parseInt(getFirstCategory)
+                        &&
+                        setCategory(item.subcategories));
+
+                } else if (getFirstCategory && getSecondCategory && !getLastCategory) {
+
+                    response.data.data.map((item: any) => item.id === parseInt(getFirstCategory)
+                        &&
+                        item.subcategories.map((subItem: any) => subItem.id === parseInt(getSecondCategory)
+                            &&
+                            setCategory(subItem.subcategories)));
+                }
+                else if (getFirstCategory && getSecondCategory && getLastCategory) {
+                    response.data.data.map((item: any) => item.id === parseInt(getFirstCategory)
+                        &&
+                        item.subcategories.map((subItem: any) => subItem.id === parseInt(getSecondCategory)
+                            &&
+                            subItem.subcategories.map((lastItem: any) => lastItem.id === parseInt(getLastCategory)
+                                &&
+                                setCategory(lastItem.subcategories))));
                 }
                 else {
                     setCategory(response.data.data);
                 }
             }
         });
-    }, []);
-
+    }, [getFirstCategory, getSecondCategory, getLastCategory]);
 
     const onClose = () => {
         setIsOpen(!isOpen);
@@ -173,7 +199,30 @@ const Category = () => {
                 console.log(response);
                 if (response.status == 200) {
                     // alert('Category created successfully');
-                    window.location.reload();
+                    // window.location.reload();
+                    setIsOpen(!isOpen);
+                    setSelectedFile(null);
+                    setPreviewURL(null);
+                    setRequiredName(false);
+                    setEnabled(true);
+                }
+            }
+            );
+        } else {
+            const data = {
+                name: nameRef.current?.value,
+                slug: slugRef.current?.value,
+                parentCategoryId: getParamsCategory ? getParamsCategory : null,
+                ordering: orderingRef.current?.value,
+                status: enabled ? 1 : 0,
+            }
+            APIService.post('category', data).then((response: any) => {
+                if (response.status == 200) {
+                    setIsOpen(!isOpen);
+                    setSelectedFile(null);
+                    setPreviewURL(null);
+                    setRequiredName(false);
+                    setEnabled(true);
                 }
             }
             );
@@ -218,7 +267,7 @@ const Category = () => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                        <div className="fixed inset-0 bg-black bg-opacity-50" />
                     </Transition.Child>
 
                     <div className="fixed inset-0 overflow-y-auto">
@@ -286,7 +335,7 @@ const Category = () => {
                                                         type="number"
                                                         ref={orderingRef}
                                                         defaultValue={1}
-                                                        className="mt-3 w-5/6 border-2 border-input rounded-lg bg-input py-3 px-5 font-medium outline-none transition focus:border-transparent active:border-transparent disabled:cursor-default dark:bg-meta-4  dark:text-white"
+                                                        className="mt-3 w-5/6 rounded-lg bg-input py-3 px-5 font-medium outline-none transition border-2 border-input dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
                                                     />
                                                     <div className="mt-3">
                                                         <label htmlFor="toggle1"
@@ -387,6 +436,9 @@ const Category = () => {
                     <table className="w-full table-auto">
                         <thead>
                             <tr className="bg-gray-2 text-left dark:bg-meta-4">
+                                <th className="py-4 px-4 min-w-[10px] font-medium text-black dark:text-white xl:pl-11">
+                                    No
+                                </th>
                                 <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                     Category Name
                                 </th>
@@ -418,6 +470,8 @@ const Category = () => {
                                         navigate(`/category/?c1=${getFirstCategory}&c2=${item.id}`);
                                     } else if (!getLastCategory) {
                                         navigate(`/category/?c1=${getFirstCategory}&c2=${getSecondCategory}&c3=${item.id}`);
+                                    } else {
+                                        navigate(`/category/?c1=${item.id}`);
                                     }
 
                                     setCategory(item.subcategories)

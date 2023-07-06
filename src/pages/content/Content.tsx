@@ -46,6 +46,9 @@ const Content = () => {
                         <table className="w-full table-auto">
                             <thead>
                                 <tr className="bg-gray-2 text-left dark:bg-meta-4">
+                                    <th className="py-4 font-medium text-black dark:text-white xl:pl-11">
+                                        No
+                                    </th>
                                     <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                         Name
                                     </th>
@@ -67,7 +70,19 @@ const Content = () => {
                                 {
                                     content.map((item: any, index: number) => (
                                         <tr key={index} className="border-b border-[#eee] last:border-b-0">
-                                            {/*<td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11 ">*/}
+                                            <td className="py-5 pl-9 dark:border-strokedark xl:pl-11">
+                                                {
+                                                    pages.current_page === 1 ? (
+                                                        <p className="text-sm text-black dark:text-white">
+                                                            {index + 1}
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-sm text-black dark:text-white">
+                                                            {(pages.current_page - 1) * pages.limit + index + 1}
+                                                        </p>
+                                                    )
+                                                }
+                                            </td>
                                             <td className="py-5 px-4 pl-9 max-w-[220px] dark:border-strokedark xl:pl-11">
                                                 <h5 className="font-medium text-black dark:text-white">
                                                     {item.title}

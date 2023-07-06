@@ -1,12 +1,12 @@
-import {FaRegEyeSlash, FaRegEye} from "react-icons/fa6";
+import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import Logo from '../../images/logo/sb24.png';
-import {useState} from "react";
+import { useRef, useState } from "react";
 import APIService from "../../service/APIService.ts";
-import {LocalStorageKey} from "../../enum";
+import { LocalStorageKey } from "../../enum";
 
 const SignIn = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const usernameRef = useRef<any>(null);
+    const passwordRef = useRef<any>(null);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [message, setMessage] = useState<string>('');
     const [requiredUserName, setRequiredUsername] = useState<boolean>(false);
@@ -14,12 +14,14 @@ const SignIn = () => {
 
     const handleLogin = async () => {
         setMessage('');
+        const username = usernameRef.current?.value;
+        const password = passwordRef.current?.value;
         if (!username || !password) {
             if (!username) setRequiredUsername(true);
             if (!password) setRequiredPassword(true);
             return;
         }
-        APIService.post('users/login', {username, password}).then((res: any) => {
+        APIService.post('users/login', { username, password }).then((res: any) => {
             if ('user' in res.data) {
                 localStorage.setItem(LocalStorageKey.USER, JSON.stringify(res.data.user));
                 window.location.href = '/';
@@ -44,7 +46,7 @@ const SignIn = () => {
                 <div
                     className="border-stroke dark:border-strokedark xl:w-1/4 sm:w-2/4 md:w-2/4 bg-white dark:bg-boxdark rounded-xl box-shadow-custom-2">
                     <div className="w-full p-10 flex items-center flex-col justify-center">
-                        <img src={Logo} alt="logo" className="w-20"/>
+                        <img src={Logo} alt="logo" className="w-20" />
                         <span
                             className="my-5 block font-normal  text-base justify-center text-center leading-6 text-gray-4">Thank you for get back to Admin User Guide, lets access our the best recommendation for your</span>
                         <div className="w-full">
@@ -57,10 +59,10 @@ const SignIn = () => {
                                         autoFocus
                                         type="text"
                                         placeholder="Enter usrename"
-                                        name="email"
-                                        value={username}
+                                        name="username"
+                                        ref={usernameRef}
                                         onKeyPress={handleKeyPress}
-                                        onChange={(e) => setUsername(e.target.value)}
+                                        onChange={() => setRequiredUsername(false)}
                                         className={`w-full rounded-lg bg-input py-3 pl-4.5 border pr-10 outline-none focus-visible:shadow-none ${requiredUserName ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
                                     />
                                 </div>
@@ -76,19 +78,19 @@ const SignIn = () => {
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Enter Password"
                                         name="password"
-                                        value={password}
+                                        ref={passwordRef}
                                         onKeyPress={handleKeyPress}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={() => setRequiredPassword(false)}
                                         className={`w-full rounded-lg bg-input py-3 border pl-4 pr-10 outline-none focus-visible:shadow-none ${requiredPassword ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
                                     />
                                     <span className="absolute right-2 top-4 cursor-pointer"
-                                          onClick={onClickShowPassword}>
+                                        onClick={onClickShowPassword}>
                                         {
                                             showPassword
                                                 ?
-                                                <FaRegEye className="w-10"/>
+                                                <FaRegEye className="w-10" />
                                                 :
-                                                <FaRegEyeSlash className="w-10"/>
+                                                <FaRegEyeSlash className="w-10" />
                                         }
                                     </span>
                                 </div>

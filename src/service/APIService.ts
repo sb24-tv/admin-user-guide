@@ -1,4 +1,4 @@
-import { LocalStorageKey } from "../enum";
+import { LocalStorageKey, StatusCodes } from "../enum";
 
 interface IRequestInit extends RequestInit {
 	headers: {
@@ -8,7 +8,7 @@ interface IRequestInit extends RequestInit {
 class APIService {
 	private static instance: APIService;
 	private readonly baseUrl: string;
-	private  token: string | null = null;
+	private token: string | null = null;
 	constructor() {
 		this.setToken();
 		// @ts-ignore
@@ -20,13 +20,13 @@ class APIService {
 			this.baseUrl = import.meta.env.VITE_API_DEV
 		}
 	}
-	
-	private setToken(){
+
+	private setToken() {
 		const data = window.localStorage.getItem(LocalStorageKey.USER)
 		if (data === null) {
 			/// force logout
 		} else {
-			const {token} = JSON.parse(data)
+			const { token } = JSON.parse(data)
 			this.token = token
 		}
 	}
@@ -50,41 +50,41 @@ class APIService {
 				Authorization: `Bearer ${this.token}`,
 			},
 		};
-		
+
 		if (data) {
 			options.body = JSON.stringify(data);
 		}
-		
+
 		try {
 			const response = await fetch(url, options);
-			if (!response.ok) {
+			if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
 				throw new Error(`Request failed with status ${response.status}`);
 			}
 			return {
 				data: await response.json(),
 				status: response.status
 			}
-		} catch (error) {
-			console.error("API Request Error:", error);
+		} catch (error: any) {
+			// console.error("API Request Error:", error);
 		}
 	}
-	
+
 	public get<T>(endpoint: string): Promise<T> {
 		return this.makeRequest<T>(endpoint, "GET");
 	}
-	
-	public post<T>(endpoint: string, data:unknown): Promise<T> {
+
+	public post<T>(endpoint: string, data: unknown): Promise<T> {
 		return this.makeRequest<T>(endpoint, "POST", data);
 	}
-	
+
 	public put<T>(endpoint: string, data: unknown): Promise<T> {
 		return this.makeRequest<T>(endpoint, "PUT", data);
 	}
-	
+
 	public patch<T>(endpoint: string, data: unknown): Promise<T> {
 		return this.makeRequest<T>(endpoint, "PATCH", data);
 	}
-	
+
 	public delete<T>(endpoint: string): Promise<T> {
 		return this.makeRequest<T>(endpoint, "DELETE");
 	}
@@ -106,4 +106,4 @@ class APIService {
 		})
 	}
 }
-export default  APIService.getInstance();
+export default APIService.getInstance();

@@ -1,8 +1,9 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import APIService from "../../service/APIService.ts";
 import { Dialog, Transition } from '@headlessui/react'
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import { StatusCodes } from "../../enum/index.ts";
+import { toast } from 'react-toastify';
 
 interface MyComponentProps {
     show: boolean;
@@ -11,8 +12,6 @@ interface MyComponentProps {
 }
 function ChangePassword(props: MyComponentProps) {
     const { show, onCloseChangePass, dataForPassword } = props;
-    console.log("this  ChangePassword  dataForPassword:", dataForPassword.id)
-    let [isOpenChangePassword, setIsOpenChangePassword] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
@@ -22,20 +21,35 @@ function ChangePassword(props: MyComponentProps) {
     const [requiredConfirmPassword, setRequiredConfirmPassword] = useState<boolean>(false);
     const [matchPassword, setMatchPassword] = useState<boolean>(false);
     const [notMatchPassword, setNotMatchPassword] = useState<boolean>(false);
+    const [invalidPassword, setInvalidPassword] = useState<boolean>(false);
+    const [message, setMessage] = useState<string>("");
 
     const passwordRef = useRef<any>(null);
     const newPasswordRef = useRef<any>(null);
     const confirmPasswordRef = useRef<any>(null);
 
     const onCloseChangePassword = () => {
+        onCloseChangePass();
         setRequiredPassword(false);
         setRequiredNewPassword(false);
         setRequiredConfirmPassword(false);
         setMatchPassword(false);
         setNotMatchPassword(false);
-
+        setInvalidPassword(false);
+        setMessage("");
     }
-
+    const notify = () => {
+        toast.success('Password changed successfully!', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
     const handleCheckPasswordMatch = () => {
         const newPassword = newPasswordRef.current.value;
         const confirmPassword = confirmPasswordRef.current.value;
@@ -74,19 +88,26 @@ function ChangePassword(props: MyComponentProps) {
             if (!confirmPassword) setRequiredConfirmPassword(true);
             return;
         }
-        const matchPassword = newPassword === confirmPassword;
-        console.log("this  handleSubmitPassword  matchPassword:", matchPassword)
 
-
-        // console.log("this  handleSubmitPassword  password:", password)
-        // console.log("this  handleSubmitPassword  newPassword:", newPassword)
-        // console.log("this  handleSubmitPassword  confirmPassword:", confirmPassword)
-        // match password and confirm password
+        const data = {
+            userId: dataForPassword.id as number,
+            currentPassword: password as string,
+            newPassword: newPassword
+        }
+        APIService.put('user/update-password', data).then((response: any) => {
+            if (response.status === StatusCodes.OK) {
+                onCloseChangePassword();
+                notify();
+            } else if (response.status === StatusCodes.NOT_FOUND) {
+                setInvalidPassword(true);
+                setMessage(response.data.message);
+            }
+        })
     }
 
     return (
         <Transition appear show={show} as={Fragment}>
-            <Dialog as="div" className="relative z-999" onClose={onCloseChangePass}>
+            <Dialog as="div" className="relative z-999" onClose={onCloseChangePassword}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -129,8 +150,8 @@ function ChangePassword(props: MyComponentProps) {
                                                         placeholder="Enter Current Password"
                                                         name="password"
                                                         ref={passwordRef}
-                                                        onChange={() => setRequiredPassword(false)}
-                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredPassword ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                        onChange={() => { setRequiredPassword(false), setInvalidPassword(false) }}
+                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredPassword || invalidPassword ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                                     />
                                                     <span className="absolute right-2 top-7.5 cursor-pointer"
                                                         onClick={() => setShowPassword(!showPassword)} >
@@ -143,8 +164,14 @@ function ChangePassword(props: MyComponentProps) {
                                                         }
                                                     </span>
                                                 </div>
-                                                {requiredPassword &&
-                                                    <span className="text-meta-1 left-0 absolute bottom-[-22px] text-sm">Password is required</span>}
+                                                {
+                                                    requiredPassword &&
+                                                    <span className="text-meta-1 left-0 absolute bottom-[-22px] text-sm">Password is required</span>
+                                                }
+                                                {
+                                                    invalidPassword &&
+                                                    <span className="text-meta-1 left-0 absolute bottom-[-22px] text-sm">{message}</span>
+                                                }
                                             </div>
                                         </div>
                                         <div className="relative">
@@ -228,7 +255,7 @@ function ChangePassword(props: MyComponentProps) {
                                         </div>
 
                                         <div className="flex justify-end items-center">
-                                            <button className="flex justify-center bg-transparent border border-meta-9 px-8 py-2 rounded-md font-medium text-black dark:text-white mr-3.5" onClick={onCloseChangePass}>
+                                            <button className="flex justify-center bg-transparent border border-meta-9 px-8 py-2 rounded-md font-medium text-black dark:text-white mr-3.5" onClick={onCloseChangePassword}>
                                                 Cancel
                                             </button>
                                             <button className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray" onClick={handleSubmitPassword}>

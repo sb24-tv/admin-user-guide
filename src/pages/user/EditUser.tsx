@@ -1,38 +1,48 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import APIService from "../../service/APIService.ts";
 import { Dialog, Transition } from '@headlessui/react'
-import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import { StatusCodes } from "../../enum/index.ts";
+import { toast } from 'react-toastify';
 
 interface MyComponentProps {
     show: boolean;
     onCloseEditUser: any;
     dataForEditUser: any;
-    statusEditUser: boolean;
+    updatedUser: () => void;
 }
 
 function EditUser(props: MyComponentProps) {
-    const { show, onCloseEditUser, dataForEditUser, statusEditUser } = props;
-    console.log("this :", statusEditUser)
+    const { show, onCloseEditUser, dataForEditUser } = props;
+    const [userSelected, setUserSelected] = useState<any>({});
 
     const [requiredName, setRequiredName] = useState<boolean>(false);
     const [requiredUsername, setRequiredUsername] = useState<boolean>(false);
-    const [enabled, setEnabled] = useState<boolean>(statusEditUser === true ? false : true);
-    console.log("this  EditUser  enabled:", enabled)
-    // const status = statusEditUser
-    // console.log("this  EditUser  status:", status)
-    // if (dataForEditUser.activate === 0) {
-    //     setEnabled(false);
-    // }
+    const [usernameExist, setUsernameExist] = useState<boolean>(false);
+    const [message, setMessage] = useState<string>("");
 
     const nameRef = useRef<any>(null);
     const usernameRef = useRef<any>(null);
-
+    useEffect(() => {
+        setUserSelected(dataForEditUser);
+    }, [dataForEditUser]);
+    
+    const notify = () => {
+        toast.success('User updated successfully!', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            });
+    };
     const handleSubmitEdit = async () => {
         const name = nameRef.current?.value;
         const username = usernameRef.current?.value;
         const id = dataForEditUser?.id;
-        const status = enabled ? 1 : 0;
+        const status = userSelected?.activate;
         if (!name || !username) {
             if (!name) setRequiredName(true);
             if (!username) setRequiredUsername(true);
@@ -44,21 +54,28 @@ function EditUser(props: MyComponentProps) {
             activate: status
         }
         APIService.put(`users/${id}`, data).then((response: any) => {
-            console.log("this  APIService.put  response:", response)
             if (response.status === StatusCodes.OK) {
-                // setIsOpenEdit(!isOpenEdit);
-                // setUser(response.data);
-                return;
+                notify();
+                onCloseEditUser();
+                props.updatedUser();
+            } else if (response.status === StatusCodes.CONFLICT) {
+                setUsernameExist(true);
+                setMessage(response.data.message);
             }
-        }
-        ).catch((error: any) => {
-            console.log(error);
-        }
-        );
+        })
     }
+    const handleClose = () => {
+        onCloseEditUser();
+        setUserSelected(dataForEditUser);
+        setRequiredName(false);
+        setRequiredUsername(false);
+        setUsernameExist(false);
+        setMessage("");
+    }
+
     return (
         <Transition appear show={show} as={Fragment}>
-            <Dialog as="div" className="relative z-999" onClose={onCloseEditUser}>
+            <Dialog as="div" className="relative z-999" onClose={handleClose}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -128,8 +145,12 @@ function EditUser(props: MyComponentProps) {
                                                         placeholder="Username"
                                                         ref={usernameRef}
                                                         defaultValue={dataForEditUser?.username}
-                                                        onChange={() => setRequiredUsername(false)}
-                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredUsername ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                        onChange={() => {
+                                                            setRequiredUsername(false)
+                                                            setUsernameExist(false)
+                                                        }
+                                                        }
+                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredUsername || usernameExist ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                                     />
                                                     {
                                                         requiredUsername && (
@@ -137,6 +158,14 @@ function EditUser(props: MyComponentProps) {
                                                                 Username is required
                                                             </span>
                                                         )
+                                                    }
+                                                    {
+                                                        usernameExist && (
+                                                            <span className="text-meta-1 text-sm absolute left-0 bottom-[-1.5rem]">
+                                                                {message}
+                                                            </span>
+                                                        )
+
                                                     }
                                                 </div>
                                                 <div className="mt-3">
@@ -149,12 +178,12 @@ function EditUser(props: MyComponentProps) {
                                                                 id="toggle1"
                                                                 className="sr-only"
                                                                 onChange={() => {
-                                                                    setEnabled(!enabled);
+                                                                    setUserSelected({ ...userSelected, activate: userSelected?.activate === 1 ? 0 : 1 })
                                                                 }}
                                                             />
                                                             <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
                                                             <div
-                                                                className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${ !enabled ? dataForEditUser?.activate === 1 ? '' : '' : '!right-1 !translate-x-full !bg-primary dark:!bg-white'
+                                                                className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${userSelected?.activate === 0 ? '' : '!right-1 !translate-x-full !bg-primary dark:!bg-white'
                                                                     }`}
                                                             ></div>
                                                         </div>
@@ -163,7 +192,7 @@ function EditUser(props: MyComponentProps) {
                                             </div>
                                         </div>
                                         <div className="flex justify-end items-center">
-                                            <button className="flex justify-center bg-transparent border border-meta-9 px-8 py-2 rounded-md font-medium text-black dark:text-white mr-3.5" onClick={onCloseEditUser}>
+                                            <button className="flex justify-center bg-transparent border border-meta-9 px-8 py-2 rounded-md font-medium text-black dark:text-white mr-3.5" onClick={handleClose}>
                                                 Cancel
                                             </button>
                                             <button className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray" onClick={handleSubmitEdit}>

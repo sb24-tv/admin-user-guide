@@ -1,160 +1,299 @@
-import Breadcrumb from '../../components/Breadcrumb.tsx';
-import { useEffect, useState, useRef } from "react";
+import { Fragment, useEffect, useState, useRef } from "react";
 import APIService from "../../service/APIService.ts";
-export default function CreateCategory() {
-    const [category, setCategory] = useState<any[]>([]);
-    const [catName, setCatName] = useState("");
-    const inputNameRef = useRef<{ value: unknown }>(null)
-    const handlechange = (events) => {
-        setCatName(events.target.value)
+import { FaUpload } from "react-icons/fa6";
+import { Dialog, Transition } from '@headlessui/react'
+import { useSearchParams } from "react-router-dom";
+import { StatusCodes } from "../../enum/index.ts";
+interface MyComponentProps {
+    show: boolean;
+    onCloseEdiCategory: any;
+    createCategory: () => void;
+}
+function getCategoryValue(getFirstCategory: unknown, getSecondCategory: unknown, getLastCategory: unknown) {
+    switch (true) {
+        case !!getLastCategory:
+            return getLastCategory;
+        case !!getSecondCategory:
+            return getSecondCategory;
+        case !!getFirstCategory:
+            return getFirstCategory;
+        default:
+            return null
     }
-    console.log(inputNameRef);
-    const handlesubmit = () => {
+}
+export default function CreateCategory(props: MyComponentProps) {
+    const { show, onCloseEdiCategory } = props;
+    const [searchParams] = useSearchParams();
+    const getFirstCategory = searchParams.get('c1');
+    const getSecondCategory = searchParams.get('c2');
+    const getLastCategory = searchParams.get('c3');
+    const nameRef = useRef<any>(null);
+    const slugRef = useRef<any>(null);
+    const orderingRef = useRef<any>(null);
+    const imageRef = useRef<any>(null);
+    const getParamsCategory = getCategoryValue(getFirstCategory, getSecondCategory, getLastCategory);
 
+    const [selectFile, setSelectedFile] = useState<File | null>(null);
+    const [previewURL, setPreviewURL] = useState<string | null>(null);
+    const [requiredName, setRequiredName] = useState<boolean>(false);
+    const [requiredImage, setRequiredImage] = useState<boolean>(false);
+    const [enabled, setEnabled] = useState<boolean>(true);
 
-
+    const onClose = () => {
+        onCloseEdiCategory();
+        setSelectedFile(null);
+        setPreviewURL(null);
+        setRequiredName(false);
+        setEnabled(true);
+        setRequiredImage(false);
     }
-    console.log(catName)
-    useEffect(() => {
-        APIService.get('subcat/1').then((response: any) => {
-            if (response.data) {
-                setCategory(response.data);
+        
+    const handleSubmit = async () => {
+        // if (!nameRef.current?.value) {
+        //     setRequiredName(true);
+        //     return;
+        // }
+        if (!nameRef.current?.value || !imageRef.current?.value) {
+            setRequiredName(true);
+            setRequiredImage(true);
+            return;
+        }
+        if (selectFile) {
+            const formData = new FormData();
+
+            const data = {
+                name: nameRef.current?.value,
+                slug: slugRef.current?.value,
+                parentCategoryId: getParamsCategory ? getParamsCategory : null,
+                ordering: orderingRef.current?.value,
+                status: enabled ? 1 : 0,
             }
-        });
-    }, []);
+
+            formData.append('catphoto', selectFile);
+            formData.append('name', data.name);
+            formData.append('slug', data.slug);
+            formData.append('parentCategoryId', data.parentCategoryId as any);
+            formData.append('ordering', data.ordering);
+            formData.append('status', data.status as any);
+
+            APIService.insertFormData('category', formData).then((response: any) => {
+                console.log(response);
+                if (response.status === StatusCodes.OK) {
+                    props.onCloseEdiCategory();
+                    setSelectedFile(null);
+                    setPreviewURL(null);
+                    setRequiredName(false);
+                    setEnabled(true);
+                }
+            }
+            );
+        } else {
+            const data = {
+                name: nameRef.current?.value,
+                slug: slugRef.current?.value,
+                parentCategoryId: getParamsCategory ? getParamsCategory : null,
+                ordering: orderingRef.current?.value,
+                status: enabled ? 1 : 0,
+            }
+            APIService.post('category', data).then((response: any) => {
+                if (response.status === StatusCodes.OK) {
+                    props.onCloseEdiCategory();
+                    setSelectedFile(null);
+                    setPreviewURL(null);
+                    setRequiredName(false);
+                    setEnabled(true);
+                }
+            }
+            );
+        }
+
+    }
+
+    const handleFileChange = (event: any) => {
+        setRequiredImage(false);
+        const file = event.target.files && event.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            setPreviewURL(URL.createObjectURL(file));
+        }
+    };
+    const handleNameChange = () => {
+        const nameValue = nameRef.current?.value || '';
+        setRequiredName(false);
+        const slugValue = generateSlug(nameValue);
+        if (slugRef.current) {
+            slugRef.current.value = slugValue;
+        }
+    };
+    const generateSlug = (text: string) => {
+        return text
+            .toLowerCase()
+            .replace(/\s+/g, '-') // Replace whitespace with hyphens
+            .replace(/[^\w-]+/g, '')// Remove non-word characters except hyphens
+            .replace(/--+/g, '-') // Replace multiple hyphens with single hyphen
+            .replace(/_+/g, '');
+    };
+
     return (
-        <>
-            <Breadcrumb pageName="Create Category" />
-            <div className="grid grid-cols-1 gap-9">
-                <div className="flex flex-col gap-9 ">
-                    {/* <!-- Contact Form --> */}
-                    <div
-                        className="rounded-xl bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                        <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                            <h3 className="font-medium text-black dark:text-white">
-                                Create Category Form
-                            </h3>
-                        </div>
-                        <form action="#">
-                            <div className="p-6.5">
-                                <div className="mb-4.5">
-                                    <div className="mb-4.5">
-                                        <label className="mb-2.5 block text-black dark:text-white">
-                                            Category Name
-                                        </label>
-                                        <input
-                                            ref={inputNameRef}
-                                            // value={catName}
-                                            type="text"
-                                            placeholder="Enter your Category name"
-                                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                                        />
-                                    </div>
+        <Transition appear show={show} as={Fragment}>
+            <Dialog as="div" className="relative z-999" onClose={onClose}>
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 bg-black bg-opacity-50" />
+                </Transition.Child>
 
-                                    <div className="mb-4.5">
-                                        <label className="mb-2.5 block text-black dark:text-white">
-                                            Category Slug
-                                        </label>
-                                        <input
-                                            type="text"
-                                            disabled
-                                            placeholder="Auto Generate"
-                                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                                        />
-                                    </div>
-
-                                    <div className="mb-4.5">
-                                        <label className="mb-2.5 block text-black dark:text-white">
-                                            Parent Category
-                                        </label>
-                                        <select className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-12 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
-                                            {category.map(item => <option value={item.id}>{item.name}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {/*<div className="mb-4.5">*/}
-                                {/*    <label className="mb-2.5 block text-black dark:text-white">*/}
-                                {/*        Category Photo*/}
-                                {/*    </label>*/}
-                                {/*    <input*/}
-                                {/*      type="file"*/}
-                                {/*      className="w-full rounded-md border border-stroke p-3 outline-none transition file:mr-4 file:rounded file:border-[0.5px] file:border-stroke file:bg-[#EEEEEE] file:py-1 file:px-2.5 file:text-sm file:font-medium focus:border-primary file:focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-strokedark dark:file:bg-white/30 dark:file:text-white"*/}
-                                {/*    />*/}
-                                {/*</div>*/}
-                                <div className="col-span-5 xl:col-span-2">
-                                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                                        <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
-                                            <h3 className="font-medium text-black dark:text-white">
-                                                Category Photo
-                                            </h3>
+                <div className="fixed inset-0 overflow-y-auto">
+                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                        <Transition.Child
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                        >
+                            <Dialog.Panel className="w-[700px] max-h-[900px] transform overflow-hidden rounded-2xl bg-white dark:bg-boxdark p-6 text-left align-middle shadow-xl transition-all">
+                                <Dialog.Title
+                                    as="h3"
+                                    className="text-[20px] font-medium leading-6 text-black-box text-center dark:text-white2"
+                                >
+                                    Create Category
+                                </Dialog.Title>
+                                <div className="rounded-sm dark:border-strokedark dark:bg-boxdark">
+                                    <div className="flex flex-col gap-5.5 p-6.5">
+                                        <div className="relative">
+                                            <label className="font-medium text-black dark:text-white">
+                                                Name <span className="text-meta-1">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="Name"
+                                                ref={nameRef}
+                                                onChange={handleNameChange}
+                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredName ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                            />
+                                            {
+                                                requiredName && (
+                                                    <span className="text-meta-1 text-sm absolute left-0 bottom-[-1.5rem]">
+                                                        Name is required
+                                                    </span>
+                                                )
+                                            }
                                         </div>
-                                        <div className="p-7">
-                                            <form action="#">
+
+                                        <div>
+                                            <label className="font-medium text-black dark:text-white">
+                                                Slug
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="Slug"
+                                                ref={slugRef}
+                                                disabled
+                                                className="mt-3 w-full rounded-lg bg-transparent py-3 px-5 font-medium outline-none transition disabled:cursor-default border-2 border-white3 disabled:bg-white3 dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between">
+                                                <label className="font-medium text-black dark:text-white">
+                                                    Ordering
+                                                </label>
+                                                <label className="font-medium text-black dark:text-white">
+                                                    Status
+                                                </label>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <input
+                                                    type="number"
+                                                    ref={orderingRef}
+                                                    defaultValue={1}
+                                                    className="mt-3 w-5/6 rounded-lg bg-input py-3 px-5 font-medium outline-none transition border-2 border-input dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
+                                                />
+                                                <div className="mt-3">
+                                                    <label htmlFor="toggle1"
+                                                        className="flex cursor-pointer select-none items-center"
+                                                    >
+                                                        <div className="relative">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="toggle1"
+                                                                className="sr-only"
+                                                                onChange={() => {
+                                                                    setEnabled(!enabled);
+                                                                }}
+                                                            />
+                                                            <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
+                                                            <div
+                                                                className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${enabled && '!right-1 !translate-x-full !bg-primary dark:!bg-white'
+                                                                    }`}
+                                                            ></div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {
+                                            !getFirstCategory && !getSecondCategory && !getLastCategory &&
+                                            <div>
+                                                <label className="font-medium text-black dark:text-white">Image</label>
                                                 <div
-                                                    id="FileUpload"
-                                                    className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5"
+                                                    className={`relative mt-3 mb-2 block w-full duration-150 transition-all cursor-pointer appearance-none rounded border-2 border-dashed bg-input py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${requiredImage ? 'border-meta-1' : 'border-bodydark'}`}
+                                                    // className={`relative mt-3 mb-2 block w-full duration-150 transition-all cursor-pointer appearance-none rounded border-2 border-dashed bg-input py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${previewURL ? 'border-primary' : 'border-bodydark hover:border-primary'}`}
+                                                // requiredImage meta-4
+                                                // className={`relative mt-3 mb-2 block w-full duration-150 transition-all cursor-pointer appearance-none rounded border-2 border-dashed bg-input py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${previewURL ? requiredImage ? 'border-meta-1' : 'border-primary' : 'border-bodydark hover:border-primary'}`}
                                                 >
                                                     <input
                                                         type="file"
                                                         accept="image/*"
+                                                        ref={imageRef}
                                                         className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
+                                                        onChange={handleFileChange}
                                                     />
                                                     <div className="flex flex-col items-center justify-center space-y-3">
-                                                        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
-                                                            <svg
-                                                                width="16"
-                                                                height="16"
-                                                                viewBox="0 0 16 16"
-                                                                fill="none"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    fillRule="evenodd"
-                                                                    clipRule="evenodd"
-                                                                    d="M1.99967 9.33337C2.36786 9.33337 2.66634 9.63185 2.66634 10V12.6667C2.66634 12.8435 2.73658 13.0131 2.8616 13.1381C2.98663 13.2631 3.1562 13.3334 3.33301 13.3334H12.6663C12.8431 13.3334 13.0127 13.2631 13.1377 13.1381C13.2628 13.0131 13.333 12.8435 13.333 12.6667V10C13.333 9.63185 13.6315 9.33337 13.9997 9.33337C14.3679 9.33337 14.6663 9.63185 14.6663 10V12.6667C14.6663 13.1971 14.4556 13.7058 14.0806 14.0809C13.7055 14.456 13.1968 14.6667 12.6663 14.6667H3.33301C2.80257 14.6667 2.29387 14.456 1.91879 14.0809C1.54372 13.7058 1.33301 13.1971 1.33301 12.6667V10C1.33301 9.63185 1.63148 9.33337 1.99967 9.33337Z"
-                                                                    fill="#3C50E0"
-                                                                />
-                                                                <path
-                                                                    fillRule="evenodd"
-                                                                    clipRule="evenodd"
-                                                                    d="M7.5286 1.52864C7.78894 1.26829 8.21106 1.26829 8.4714 1.52864L11.8047 4.86197C12.0651 5.12232 12.0651 5.54443 11.8047 5.80478C11.5444 6.06513 11.1223 6.06513 10.8619 5.80478L8 2.94285L5.13807 5.80478C4.87772 6.06513 4.45561 6.06513 4.19526 5.80478C3.93491 5.54443 3.93491 5.12232 4.19526 4.86197L7.5286 1.52864Z"
-                                                                    fill="#3C50E0"
-                                                                />
-                                                                <path
-                                                                    fillRule="evenodd"
-                                                                    clipRule="evenodd"
-                                                                    d="M7.99967 1.33337C8.36786 1.33337 8.66634 1.63185 8.66634 2.00004V10C8.66634 10.3682 8.36786 10.6667 7.99967 10.6667C7.63148 10.6667 7.33301 10.3682 7.33301 10V2.00004C7.33301 1.63185 7.63148 1.33337 7.99967 1.33337Z"
-                                                                    fill="#3C50E0"
-                                                                />
-                                                            </svg>
-                                                        </span>
-                                                        <p>
-                                                            <span className="text-primary">Click to upload</span> or
-                                                            drag and drop
-                                                        </p>
-                                                        <p className="mt-1.5">PNG or JPG </p>
-                                                        <p>(max, 800 X 800px)</p>
+                                                        {previewURL ? (
+                                                            <img
+                                                                src={previewURL}
+                                                                alt="Uploaded Image Preview"
+                                                                className="h-30 w-30 object-contain rounded-lg"
+                                                            />
+                                                        ) : (
+                                                            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
+                                                                <FaUpload />
+                                                            </span>
+                                                        )}
+                                                        {
+                                                            !previewURL &&
+                                                            <p>
+                                                                <span className="text-primary">Click to upload</span> or drag and drop image here
+                                                            </p>
+                                                        }
                                                     </div>
                                                 </div>
-                                            </form>
+                                            </div>
+                                        }
+                                        <div className="flex justify-end items-center">
+                                            <button className="flex justify-center bg-transparent border border-meta-9 px-8 py-2 rounded-md font-medium text-black dark:text-white mr-3.5" onClick={onClose}>
+                                                Cancel
+                                            </button>
+                                            <button className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray" onClick={handleSubmit}>
+                                                Create
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-
-                                <button
-                                    onClick={handlesubmit}
-                                    className="flex justify-center bg-primary px-8 py-2 rounded-xl font-medium text-gray">
-                                    Create
-                                </button>
-                            </div>
-                        </form>
+                            </Dialog.Panel>
+                        </Transition.Child>
                     </div>
                 </div>
-
-
-            </div>
-        </>
+            </Dialog>
+        </Transition>
     );
 };
 

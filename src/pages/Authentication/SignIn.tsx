@@ -2,7 +2,7 @@ import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import Logo from '../../images/logo/sb24.png';
 import { useRef, useState } from "react";
 import APIService from "../../service/APIService.ts";
-import { LocalStorageKey } from "../../enum";
+import { LocalStorageKey, StatusCodes } from "../../enum";
 
 const SignIn = () => {
     const usernameRef = useRef<any>(null);
@@ -11,9 +11,11 @@ const SignIn = () => {
     const [message, setMessage] = useState<string>('');
     const [requiredUserName, setRequiredUsername] = useState<boolean>(false);
     const [requiredPassword, setRequiredPassword] = useState<boolean>(false);
+    const [userDeactivateMessage, setUserDeactivateMessage] = useState<string>('');
 
     const handleLogin = async () => {
         setMessage('');
+        setUserDeactivateMessage('');
         const username = usernameRef.current?.value;
         const password = passwordRef.current?.value;
         if (!username || !password) {
@@ -22,14 +24,16 @@ const SignIn = () => {
             return;
         }
         APIService.post('users/login', { username, password }).then((res: any) => {
-            if ('user' in res.data) {
+            if (res.status === StatusCodes.OK) {
                 localStorage.setItem(LocalStorageKey.USER, JSON.stringify(res.data.user));
                 window.location.href = '/';
+            } else if (res.status === StatusCodes.NOT_FOUND) {
+                setRequiredUsername(false);
+                setRequiredPassword(false);
+                setMessage(res.data.message);
+            } else if (res.status === StatusCodes.UNAUTHORIZED) {
+                setUserDeactivateMessage(res.data.message);
             }
-        }).catch(() => {
-            setRequiredUsername(false);
-            setRequiredPassword(false);
-            setMessage('Username or password is incorrect!');
         })
     };
     const handleKeyPress = (e: any) => {
@@ -66,8 +70,9 @@ const SignIn = () => {
                                         className={`w-full rounded-lg bg-input py-3 pl-4.5 border pr-10 outline-none focus-visible:shadow-none ${requiredUserName ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
                                     />
                                 </div>
-                                {requiredUserName &&
-                                    <span className="text-meta-1 left-0 absolute bottom-[-22px] text-sm">Username is required</span>}
+                                {
+                                    requiredUserName && <span className="text-meta-1 left-0 absolute bottom-[-22px] text-sm">Username is required</span>
+                                }
                             </div>
                             <div className="mb-8 relative">
                                 <label className="mb-2.5 block font-medium text-gray-5 text-base dark:text-white">
@@ -94,8 +99,9 @@ const SignIn = () => {
                                         }
                                     </span>
                                 </div>
-                                {requiredPassword &&
-                                    <span className="text-meta-1 left-0 absolute bottom-[-22px] text-sm">Password is required</span>}
+                                {
+                                    requiredPassword && <span className="text-meta-1 left-0 absolute bottom-[-22px] text-sm">Password is required</span>
+                                }
                             </div>
 
                             <div className="mb-5 flex">
@@ -110,6 +116,9 @@ const SignIn = () => {
                             <div className="mb-4 relative">
                                 {
                                     message && <span className="text-meta-1 absolute">  {message}  </span>
+                                }
+                                {
+                                    userDeactivateMessage && <span className="text-meta-1 absolute">{userDeactivateMessage}</span>
                                 }
                             </div>
                         </div>

@@ -92,15 +92,15 @@ export default function EditCategory(props: MyComponentProps) {
         if (selectFile) {
             const formData = new FormData();
             const statusCategory = categorySelected.status;
+            const id = dataForEditCategory.id;
             const data = {
-                id: dataForEditCategory.id,
                 name: nameRef.current?.value,
                 slug: slugRef.current?.value,
-                parentCategoryId: dataForEditCategory.id,
+                parentCategoryId: null,
                 ordering: orderingRef.current?.value,
                 status: statusCategory
             }
-            formData.append('id', data.id);
+            
             formData.append('catphoto', selectFile);
             formData.append('name', data.name);
             formData.append('slug', data.slug);
@@ -108,9 +108,7 @@ export default function EditCategory(props: MyComponentProps) {
             formData.append('ordering', data.ordering);
             formData.append('status', data.status as any);
 
-            // APIService.insertFormData('category', formData).then((response: any) => {
-            APIService.updateFormData(`category/${data.id}`, formData).then((response: any) => {
-                console.log('response', response)
+            APIService.updateFormData(`category/${id}`, formData).then((response: any) => {
                 if (response.status === StatusCodes.OK) {
                     notify();
                     onCloseEditCategory();
@@ -131,7 +129,6 @@ export default function EditCategory(props: MyComponentProps) {
                 ordering: orderingRef.current?.value,
                 status: statusCategory
             }
-            // return console.log('data', data)
             APIService.put(`category/${id}`, data).then((response: any) => {
                 console.log('response', response)
                 if (response.status === StatusCodes.OK) {

@@ -90,7 +90,7 @@ export default function CreateCategory(props: MyComponentProps) {
             const data = {
                 name: nameRef.current?.value,
                 slug: slugRef.current?.value,
-                parentCategoryId: getParamsCategory ? getParamsCategory : null,
+                parentCategoryId: null,
                 ordering: orderingRef.current?.value,
                 status: enabled ? 1 : 0,
             }

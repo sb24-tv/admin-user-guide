@@ -13,6 +13,7 @@ interface MyComponentProps {
 
 function EditUser(props: MyComponentProps) {
     const { show, onCloseEditUser, dataForEditUser } = props;
+    console.log("this  EditUser  dataForEditUser:", dataForEditUser)
     const [userSelected, setUserSelected] = useState<any>({});
 
     const [requiredName, setRequiredName] = useState<boolean>(false);
@@ -179,7 +180,7 @@ function EditUser(props: MyComponentProps) {
                                                                 className="sr-only"
                                                                 onChange={() => {
                                                                     setUserSelected({ ...userSelected, activate: userSelected?.activate === 1 ? 0 : 1 })
-                                                                }}
+                                                                }} 
                                                             />
                                                             <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
                                                             <div

@@ -5,8 +5,6 @@ import ChangePassword from "./ChangePassword.tsx";
 import CreateUser from "./CreateUser.tsx";
 import EditUser from "./EditUser.tsx";
 import { StatusCodes } from "../../enum/index.ts";
-import { ToastContainer } from 'react-toastify';
-import "react-toastify/dist/ReactToastify.css";
 
 const User = () => {
     const [users, setUser] = useState<any>([]);
@@ -39,7 +37,6 @@ const User = () => {
     }
     return (
         <>
-            <ToastContainer />
             <CreateUser show={isOpenCreateUser} onCloseCreateUser={() => setIsOpenCreateUser(false)} createdUser={() => { fetchData(); }} />
             <EditUser show={isOpenEdit} onCloseEditUser={onCloseEditUser} dataForEditUser={dataForEdit} updatedUser={() => { fetchData(); }} />
             <ChangePassword show={isOpenChangePassword} onCloseChangePass={() => setIsOpenChangePassword(false)} dataForPassword={userEdit} />

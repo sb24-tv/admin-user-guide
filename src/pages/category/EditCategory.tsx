@@ -1,4 +1,4 @@
-import { Fragment, useState, useRef } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import APIService from "../../service/APIService.ts";
 import { FaUpload } from "react-icons/fa6";
 import { Dialog, Transition } from '@headlessui/react'
@@ -23,7 +23,9 @@ function getURL() {
 }
 export default function EditCategory(props: MyComponentProps) {
     const { show, onCloseEditCategory, dataForEditCategory } = props;
-    console.log("this  EditCategory  dataForEditCategory:", dataForEditCategory)
+    const [categorySelected, setCategorySelected] = useState<any>({});
+    // console.log("this  EditCategory  dataForEditCategory:", dataForEditCategory)
+    console.log("this:", categorySelected?.status)
     const [searchParams] = useSearchParams();
     const getFirstCategory = searchParams.get('c1');
     const getSecondCategory = searchParams.get('c2');
@@ -33,8 +35,12 @@ export default function EditCategory(props: MyComponentProps) {
     const orderingRef = useRef<any>(null);
     const imageRef = useRef<any>(null);
 
+    useEffect(() => {
+        setCategorySelected(dataForEditCategory);
+    }, [dataForEditCategory]);
+
     const notify = () => {
-        toast.success('Category created successfully', {
+        toast.success('Category updated successfully', {
             position: "bottom-left",
             autoClose: 5000,
             hideProgressBar: false,
@@ -50,14 +56,13 @@ export default function EditCategory(props: MyComponentProps) {
     const [previewURL, setPreviewURL] = useState<string | null>(null);
     const [requiredName, setRequiredName] = useState<boolean>(false);
     const [requiredImage, setRequiredImage] = useState<boolean>(false);
-    const [enabled, setEnabled] = useState<boolean>(true);
 
     const onClose = () => {
         onCloseEditCategory();
         setSelectedFile(null);
         setPreviewURL(null);
         setRequiredName(false);
-        setEnabled(true);
+        setCategorySelected(dataForEditCategory);
         setRequiredImage(false);
     }
 
@@ -86,22 +91,26 @@ export default function EditCategory(props: MyComponentProps) {
         };
         if (selectFile) {
             const formData = new FormData();
+            const statusCategory = categorySelected.status;
             const data = {
+                id: dataForEditCategory.id,
                 name: nameRef.current?.value,
                 slug: slugRef.current?.value,
                 parentCategoryId: dataForEditCategory.id,
                 ordering: orderingRef.current?.value,
-                status: enabled ? 1 : 0,
+                status: statusCategory
             }
-
+            formData.append('id', data.id);
             formData.append('catphoto', selectFile);
             formData.append('name', data.name);
             formData.append('slug', data.slug);
-            formData.append('parentCategoryId', data.parentCategoryId as any);
+            // formData.append('parentCategoryId', data.parentCategoryId as any);
             formData.append('ordering', data.ordering);
             formData.append('status', data.status as any);
 
-            APIService.insertFormData('category', formData).then((response: any) => {
+            // APIService.insertFormData('category', formData).then((response: any) => {
+            APIService.updateFormData(`category/${data.id}`, formData).then((response: any) => {
+                console.log('response', response)
                 if (response.status === StatusCodes.OK) {
                     notify();
                     onCloseEditCategory();
@@ -109,19 +118,22 @@ export default function EditCategory(props: MyComponentProps) {
                     setSelectedFile(null);
                     setPreviewURL(null);
                     setRequiredName(false);
-                    setEnabled(true);
+                    setCategorySelected(dataForEditCategory);
                 }
             }
             );
         } else {
+            const id = dataForEditCategory.id;
+            const statusCategory = categorySelected.status;
             const data = {
                 name: nameRef.current?.value,
                 slug: slugRef.current?.value,
-                parentCategoryId: dataForEditCategory.id,
                 ordering: orderingRef.current?.value,
-                status: enabled ? 1 : 0,
+                status: statusCategory
             }
-            APIService.post('category', data).then((response: any) => {
+            // return console.log('data', data)
+            APIService.put(`category/${id}`, data).then((response: any) => {
+                console.log('response', response)
                 if (response.status === StatusCodes.OK) {
                     notify();
                     onCloseEditCategory();
@@ -129,14 +141,14 @@ export default function EditCategory(props: MyComponentProps) {
                     setSelectedFile(null);
                     setPreviewURL(null);
                     setRequiredName(false);
-                    setEnabled(true);
+                    setCategorySelected(dataForEditCategory);
                 }
             }
             );
         }
 
     }
-
+    console.log('dataForEditCategory', dataForEditCategory)
     const handleFileChange = (event: any) => {
         setRequiredImage(false);
         const file = event.target.files && event.target.files[0];
@@ -256,14 +268,11 @@ export default function EditCategory(props: MyComponentProps) {
                                                                 id="toggle1"
                                                                 className="sr-only"
                                                                 onChange={() => {
-                                                                    setEnabled(!enabled);
+                                                                    setCategorySelected({ ...categorySelected, status: categorySelected?.status === true ? false : true });
                                                                 }}
                                                             />
                                                             <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
-                                                            <div
-                                                                className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${enabled && '!right-1 !translate-x-full !bg-primary dark:!bg-white'
-                                                                    }`}
-                                                            ></div>
+                                                            <div className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${categorySelected?.status === false ? '' : '!right-1 !translate-x-full !bg-primary dark:!bg-white'}`} ></div>
                                                         </div>
                                                     </label>
                                                 </div>
@@ -314,7 +323,7 @@ export default function EditCategory(props: MyComponentProps) {
                                                 Cancel
                                             </button>
                                             <button className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray" onClick={handleSubmit}>
-                                                Create
+                                                Update
                                             </button>
                                         </div>
                                     </div>

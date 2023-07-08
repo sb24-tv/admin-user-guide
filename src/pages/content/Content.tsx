@@ -136,7 +136,7 @@ const Content = () => {
                             </tbody>
                         </table>
                     </div>
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center mb-3">
                         <span>
                             {
                                 pages.total < pages.limit

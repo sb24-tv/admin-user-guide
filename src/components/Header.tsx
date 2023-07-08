@@ -2,8 +2,6 @@ import { Link } from 'react-router-dom';
 import Logo from '../images/logo/logo-icon.svg';
 import DarkModeSwitcher from './DarkModeSwitcher';
 import DropdownUser from './DropdownUser';
-import { ToastContainer } from 'react-toastify';
-import "react-toastify/dist/ReactToastify.css";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
@@ -11,7 +9,6 @@ const Header = (props: {
 }) => {
   return (
     <>
-    <ToastContainer />
     <header className="sticky top-0 z-999 flex w-full bg-white box-shadow-custom dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between py-4 px-4 md:px-6 2xl:px-11">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden justify-end">

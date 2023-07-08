@@ -1,13 +1,11 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import APIService from "../../service/APIService.ts";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import NoImage from "../../images/logo/black-and-white.png"
-import { FaRegPenToSquare, FaTrash, FaAngleLeft, FaUpload } from "react-icons/fa6";
-import { Dialog, Transition } from '@headlessui/react'
-import { ToastContainer } from 'react-toastify';
-import "react-toastify/dist/ReactToastify.css";
+import { FaRegPenToSquare, FaAngleLeft } from "react-icons/fa6";
 import CreateCategory from "./CreateCategory.tsx";
 import EditCategory from "./EditCategory.tsx";
+import NoFile from "../../images/logo/no-task.png";
 
 function getURL() {
     // @ts-ignore
@@ -19,158 +17,19 @@ function getURL() {
         return import.meta.env.VITE_API_DEV
     }
 }
-// function getCategoryValue(getFirstCategory: unknown, getSecondCategory: unknown, getLastCategory: unknown) {
-//     switch (true) {
-//         case !!getLastCategory:
-//             return getLastCategory;
-//         case !!getSecondCategory:
-//             return getSecondCategory;
-//         case !!getFirstCategory:
-//             return getFirstCategory;
-//         default:
-//             return null
-//     }
-// }
-
-function TableRow({ data, onSelect }: any) {
-    const [dataForEdit, setDataForEdit] = useState<any>(null);
-    const [open, setOpen] = useState<boolean>(false);
-    const onError = (e: any) => {
-        e.target.src = NoImage;
-    }
-    const [searchParams] = useSearchParams();
-    const getFirstCategory = searchParams.get('c1');
-    const getSecondCategory = searchParams.get('c2');
-    const getLastCategory = searchParams.get('c3');
-
-    const onCloseEditCategory = () => {
-        setOpen(false);
-    }
-    return (
-        <>
-            <EditCategory show={open} onCloseEditCategory={onCloseEditCategory} dataForEditCategory={dataForEdit} updateCategory={() => { }} />
-            {
-                data.map((item: any, index: number) => (
-                    <tr className="border-b border-[#eee] dark:border-graydark last:border-b-0" key={index}>
-                        <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
-                            {
-                                data.length > 0
-                                &&
-                                <p className="text-sm text-black dark:text-white">
-                                    {index + 1}
-                                </p>
-                            }
-                        </td>
-                        <td onClick={() => item.subcategories && onSelect(item)}
-                            className={`py-5 px-4 pl-9 dark:border-strokedark xl:pl-11 ${item.subcategories && 'cursor-pointer'}`}
-                        >
-                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                                {
-                                    !getFirstCategory && !getSecondCategory && !getLastCategory &&
-                                    <div className="h-12.5 w-15 rounded-md">
-                                        <img
-                                            src={item.catphoto ? getURL() + '/public/images/' + item.catphoto : NoImage}
-                                            alt={item.name} className="w-20" onError={onError} />
-                                    </div>
-                                }
-                                <p className="text-base text-black dark:text-white">
-                                    {item.name}
-                                </p>
-                            </div>
-
-                        </td>
-                        <td className="py-5 px-4 dark:border-strokedark">
-                            <p className="text-base text-black dark:text-white">
-                                {item.slug}
-                            </p>
-                        </td>
-                        <td className="py-5 px-4 dark:border-strokedark">
-                            <p className="text-base text-black dark:text-white">
-                                {item.ordering}
-                            </p>
-                        </td>
-                        <td className="py-5 px-4 dark:border-strokedark">
-                            <p className="text-black dark:text-white">
-                                {new Date(item.createdAt).toLocaleDateString("en-US", {
-                                    weekday: "short",
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                })
-                                }
-                            </p>
-                        </td>
-                        <td className="py-5 px-4 dark:border-strokedark">
-                            {
-                                item.status === true ? (
-                                    <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
-                                        Active
-                                    </p>
-                                ) : (
-                                    <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
-                                        Disable
-                                    </p>
-                                )
-                            }
-                        </td>
-                        <td className="py-5 px-4 dark:border-strokedark">
-                            <div className="flex items-center space-x-3.5">
-                                <button className="hover:text-primary"
-                                    onClick={
-                                        () => {
-                                            setOpen(true);
-                                            setDataForEdit(item);
-                                        }
-                                    }
-                                >
-                                    <FaRegPenToSquare />
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                ))
-            }
-        </>
-    )
-}
 
 const Category = () => {
     const [searchParams] = useSearchParams();
     const getFirstCategory = searchParams.get('c1');
     const getSecondCategory = searchParams.get('c2');
     const getLastCategory = searchParams.get('c3');
+
     const [category, setCategory] = useState([]);
+    // This for create category
     let [open, setOpen] = useState<boolean>(false);
-    const navigate = useNavigate();
     const fetchData = () => {
         APIService.get('subcat').then((response: any) => {
-            if (response.status == 200) {
-                if (getFirstCategory && !getSecondCategory && !getLastCategory) {
-                    response.data.data.map((item: any) => item.id === parseInt(getFirstCategory)
-                        &&
-                        setCategory(item.subcategories));
-
-                } else if (getFirstCategory && getSecondCategory && !getLastCategory) {
-
-                    response.data.data.map((item: any) => item.id === parseInt(getFirstCategory)
-                        &&
-                        item.subcategories.map((subItem: any) => subItem.id === parseInt(getSecondCategory)
-                            &&
-                            setCategory(subItem.subcategories)));
-                }
-                else if (getFirstCategory && getSecondCategory && getLastCategory) {
-                    response.data.data.map((item: any) => item.id === parseInt(getFirstCategory)
-                        &&
-                        item.subcategories.map((subItem: any) => subItem.id === parseInt(getSecondCategory)
-                            &&
-                            subItem.subcategories.map((lastItem: any) => lastItem.id === parseInt(getLastCategory)
-                                &&
-                                setCategory(lastItem.subcategories))));
-                }
-                else {
-                    setCategory(response.data.data);
-                }
-            }
+            setCategory(response.data.data);
         });
     }
     useEffect(() => {
@@ -180,9 +39,21 @@ const Category = () => {
     const onCloseCreateCategory = () => {
         setOpen(false);
     }
+
+    // This for edit category
+    const [dataForEdit, setDataForEdit] = useState<any>(null);
+    const [openEdit, setOpenEdit] = useState<boolean>(false);
+    const onError = (e: any) => {
+        e.target.src = NoImage;
+    }
+
+    const onCloseEditCategory = () => {
+        setOpenEdit(false);
+    }
     return (
         <>
             <CreateCategory show={open} onCloseCreateCategory={onCloseCreateCategory} createCategory={() => fetchData()} />
+            <EditCategory show={openEdit} onCloseEditCategory={onCloseEditCategory} dataForEditCategory={dataForEdit} updateCategory={() => fetchData()} />
             <div className="mb-6 flex flex-col gap-3 sm:flex-row items-center">
                 {
                     getFirstCategory &&
@@ -211,7 +82,7 @@ const Category = () => {
                                     No
                                 </th>
                                 <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
-                                    Category Name
+                                    Name
                                 </th>
                                 <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
                                     Slug
@@ -223,7 +94,7 @@ const Category = () => {
                                     Created Date
                                 </th>
                                 <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
-                                    Active
+                                    Status
                                 </th>
                                 <th className="py-4 px-4 font-medium text-black dark:text-white rounded-tr-lg rounded-br-lg">
                                     Actions
@@ -231,23 +102,376 @@ const Category = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            <TableRow
+                            {
+                                getFirstCategory && getSecondCategory && getLastCategory &&
+                                category.map((item: any, key: number) => item.id == parseInt(getFirstCategory as string) && (
+                                    <React.Fragment key={key}>
+                                        {
+                                            item.subcategories.map((subcategory: any, key: number) => subcategory.id == parseInt(getSecondCategory as string) && (
+                                                <React.Fragment key={key}>
+                                                    {
+                                                        subcategory.subcategories.map((lastSubcategory: any, key: number) => lastSubcategory.id == parseInt(getLastCategory as string) && (
+                                                            <React.Fragment key={key}>
+                                                                {
+                                                                    lastSubcategory.subcategories.length > 0 ?
+                                                                        lastSubcategory.subcategories.map((lastSubSubcategory: any, index: number) => (
 
-                                data={category}
-                                onSelect={(item: any) => {
-                                    if (!getFirstCategory) {
-                                        navigate(`/category/?c1=${item.id}`);
-                                    } else if (!getSecondCategory) {
-                                        navigate(`/category/?c1=${getFirstCategory}&c2=${item.id}`);
-                                    } else if (!getLastCategory) {
-                                        navigate(`/category/?c1=${getFirstCategory}&c2=${getSecondCategory}&c3=${item.id}`);
-                                    } else {
-                                        navigate(`/category/?c1=${item.id}`);
-                                    }
+                                                                            <tr className="border-b border-[#eee] last:border-b-0" key={index}>
+                                                                                <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                                                                                    {
+                                                                                        <p className="text-sm text-black dark:text-white">
+                                                                                            {index + 1}
+                                                                                        </p>
+                                                                                    }
+                                                                                </td>
+                                                                                <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                                                                    <p className="text-base text-black dark:text-white">
+                                                                                        {lastSubSubcategory.name}
+                                                                                    </p>
+                                                                                </td>
+                                                                                <td className="py-5 px-4 dark:border-strokedark">
+                                                                                    <p className="text-base text-black dark:text-white">
+                                                                                        {lastSubSubcategory.slug}
+                                                                                    </p>
+                                                                                </td>
+                                                                                <td className="py-5 px-4 dark:border-strokedark">
+                                                                                    <p className="text-base text-black dark:text-white">
+                                                                                        {lastSubSubcategory.ordering}
+                                                                                    </p>
+                                                                                </td>
+                                                                                <td className="py-5 px-4 dark:border-strokedark">
+                                                                                    <p className="text-black dark:text-white">
+                                                                                        {new Date(lastSubSubcategory.createdAt).toLocaleDateString("en-US", {
+                                                                                            weekday: "short",
+                                                                                            year: "numeric",
+                                                                                            month: "short",
+                                                                                            day: "numeric",
+                                                                                        })
+                                                                                        }
+                                                                                    </p>
+                                                                                </td>
+                                                                                <td className="py-5 px-4 dark:border-strokedark">
+                                                                                    {
+                                                                                        lastSubSubcategory.status === true ? (
+                                                                                            <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
+                                                                                                Active
+                                                                                            </p>
+                                                                                        ) : (
+                                                                                            <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
+                                                                                                Disable
+                                                                                            </p>
+                                                                                        )
+                                                                                    }
+                                                                                </td>
+                                                                                <td className="py-5 px-4 dark:border-strokedark">
+                                                                                    <div className="flex items-center space-x-3.5">
+                                                                                        <button className="hover:text-primary"
+                                                                                            onClick={
+                                                                                                () => {
+                                                                                                    setOpenEdit(true);
+                                                                                                    setDataForEdit(lastSubSubcategory);
+                                                                                                }
+                                                                                            }
+                                                                                        >
+                                                                                            <FaRegPenToSquare />
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        )
+                                                                        )
+                                                                        :
+                                                                        <tr>
+                                                                            <td colSpan={7} className="py-4 px-4 dark:border-strokedark">
+                                                                                <div className="w-full flex flex-col items-center justify-center">
+                                                                                    <img src={NoFile} alt="No Category" className="w-25 my-4 text-center" />
+                                                                                    <p className="text-sm text-black dark:text-white text-center">
+                                                                                        No Category Found
+                                                                                    </p>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                }
 
-                                    setCategory(item.subcategories)
-                                }}
-                            />
+                                                            </React.Fragment>
+                                                        ))
+                                                    }
+                                                </React.Fragment>
+                                            )
+                                            )
+                                        }
+
+                                    </React.Fragment>
+                                ))
+                            }
+
+                            {
+                                getFirstCategory && getSecondCategory && !getLastCategory &&
+                                category.filter((item: any) => item.id == parseInt(getFirstCategory)).map((item: any, key: number) => (
+                                    <React.Fragment key={key}>
+                                        {
+                                            item.subcategories.filter((subcategory: any) => subcategory.id == parseInt(getSecondCategory)).map((subcategory: any, key: number) => (
+
+                                                <React.Fragment key={key}>
+                                                    {
+                                                        subcategory.subcategories.length > 0 ?
+                                                            subcategory.subcategories.map((subSubcategory: any, index: number) => (
+                                                                <tr className="border-b border-[#eee] last:border-b-0" key={index}>
+                                                                    <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                                                                        {
+                                                                            <p className="text-sm text-black dark:text-white">
+                                                                                {index + 1}
+                                                                            </p>
+                                                                        }
+                                                                    </td>
+                                                                    <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                                                        <Link to={`?c1=${item.id}&c2=${subcategory.id}&c3=${subSubcategory.id}`}>
+                                                                            <p className="text-base text-black dark:text-white">
+                                                                                {subSubcategory.name}
+                                                                            </p>
+                                                                        </Link>
+                                                                    </td>
+                                                                    <td className="py-5 px-4 dark:border-strokedark">
+                                                                        <p className="text-base text-black dark:text-white">
+                                                                            {subSubcategory.slug}
+                                                                        </p>
+                                                                    </td>
+                                                                    <td className="py-5 px-4 dark:border-strokedark">
+                                                                        <p className="text-base text-black dark:text-white">
+                                                                            {subSubcategory.ordering}
+                                                                        </p>
+                                                                    </td>
+                                                                    <td className="py-5 px-4 dark:border-strokedark">
+                                                                        <p className="text-black dark:text-white">
+                                                                            {new Date(subSubcategory.createdAt).toLocaleDateString("en-US", {
+                                                                                weekday: "short",
+                                                                                year: "numeric",
+                                                                                month: "short",
+                                                                                day: "numeric",
+                                                                            })
+                                                                            }
+                                                                        </p>
+                                                                    </td>
+                                                                    <td className="py-5 px-4 dark:border-strokedark">
+                                                                        {
+                                                                            subSubcategory.status === true ? (
+                                                                                <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
+                                                                                    Active
+                                                                                </p>
+                                                                            ) : (
+                                                                                <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
+                                                                                    Disable
+                                                                                </p>
+                                                                            )
+                                                                        }
+                                                                    </td>
+                                                                    <td className="py-5 px-4 dark:border-strokedark">
+                                                                        <div className="flex items-center space-x-3.5">
+                                                                            <button className="hover:text-primary"
+                                                                                onClick={
+                                                                                    () => {
+                                                                                        setOpenEdit(true);
+                                                                                        setDataForEdit(subSubcategory);
+                                                                                    }
+                                                                                }
+                                                                            >
+                                                                                <FaRegPenToSquare />
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                            :
+                                                            <tr>
+                                                                <td colSpan={7} className="py-4 px-4 dark:border-strokedark">
+                                                                    <div className="w-full flex flex-col items-center justify-center">
+                                                                        <img src={NoFile} alt="No Category" className="w-25 my-4 text-center" />
+                                                                        <p className="text-sm text-black dark:text-white text-center">
+                                                                            No Category Found
+                                                                        </p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                    }
+                                                </React.Fragment>
+                                            )
+                                            )
+                                        }
+
+                                    </React.Fragment>
+                                ))
+                            }
+
+                            {
+
+                                getFirstCategory && !getSecondCategory &&
+                                category.filter((item: any) => item.id == parseInt(getFirstCategory)).map((item: any, key: number) => (
+                                    <React.Fragment key={key}>
+                                        {
+                                            item.subcategories.length > 0 ?
+                                                item.subcategories.map((subcategory: any, index: number) => (
+                                                    <tr className="border-b border-[#eee] last:border-b-0" key={index}>
+                                                        <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                                                            {
+                                                                <p className="text-sm text-black dark:text-white">
+                                                                    {index + 1}
+                                                                </p>
+                                                            }
+                                                        </td>
+                                                        <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                                            <Link to={`?c1=${item.id}&c2=${subcategory.id}`}>
+                                                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                                                    <p className="text-base text-black dark:text-white">
+                                                                        {subcategory.name}
+                                                                    </p>
+                                                                </div>
+                                                            </Link>
+                                                        </td>
+                                                        <td className="py-5 px-4 dark:border-strokedark">
+                                                            <p className="text-base text-black dark:text-white">
+                                                                {subcategory.slug}
+                                                            </p>
+                                                        </td>
+                                                        <td className="py-5 px-4 dark:border-strokedark">
+                                                            <p className="text-base text-black dark:text-white">
+                                                                {subcategory.ordering}
+                                                            </p>
+                                                        </td>
+                                                        <td className="py-5 px-4 dark:border-strokedark">
+                                                            <p className="text-black dark:text-white">
+                                                                {new Date(subcategory.createdAt).toLocaleDateString("en-US", {
+                                                                    weekday: "short",
+                                                                    year: "numeric",
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                })
+                                                                }
+                                                            </p>
+                                                        </td>
+                                                        <td className="py-5 px-4 dark:border-strokedark">
+                                                            {
+                                                                subcategory.status === true ? (
+                                                                    <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
+                                                                        Active
+                                                                    </p>
+                                                                ) : (
+                                                                    <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
+                                                                        Disable
+                                                                    </p>
+                                                                )
+                                                            }
+                                                        </td>
+                                                        <td className="py-5 px-4 dark:border-strokedark">
+                                                            <div className="flex items-center space-x-3.5">
+                                                                <button className="hover:text-primary"
+                                                                    onClick={
+                                                                        () => {
+                                                                            setOpenEdit(true);
+                                                                            setDataForEdit(subcategory);
+                                                                        }
+                                                                    }
+                                                                >
+                                                                    <FaRegPenToSquare />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                ))
+                                                :
+                                                <tr>
+                                                    <td colSpan={7} className="py-4 px-4 dark:border-strokedark">
+                                                        <div className="w-full flex flex-col items-center justify-center">
+                                                            <img src={NoFile} alt="No Category" className="w-25 my-4 text-center" />
+                                                            <p className="text-sm text-black dark:text-white text-center">
+                                                                No Category Found
+                                                            </p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                        }
+                                    </React.Fragment>
+                                ))
+                            }
+                            {
+                                !getFirstCategory && !getSecondCategory &&
+                                    category.map((item: any, index: number) => (
+                                        <tr className="border-b border-[#eee] last:border-b-0" key={index}>
+                                            <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                                                {
+                                                    <p className="text-sm text-black dark:text-white">
+                                                        {index + 1}
+                                                    </p>
+                                                }
+                                            </td>
+                                            <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                                <Link to={`?c1=${item.id}`}>
+                                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                                        <div className="h-12.5 w-15 rounded-md">
+                                                            <img
+                                                                src={item.catphoto ? getURL() + '/public/images/' + item.catphoto : NoImage}
+                                                                alt={item.name} className="w-20" onError={onError} />
+                                                        </div>
+                                                        <p className="text-base text-black dark:text-white">
+                                                            {item.name}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            </td>
+                                            <td className="py-5 px-4 dark:border-strokedark">
+                                                <p className="text-base text-black dark:text-white">
+                                                    {item.slug}
+                                                </p>
+                                            </td>
+                                            <td className="py-5 px-4 dark:border-strokedark">
+                                                <p className="text-base text-black dark:text-white">
+                                                    {item.ordering}
+                                                </p>
+                                            </td>
+                                            <td className="py-5 px-4 dark:border-strokedark">
+                                                <p className="text-black dark:text-white">
+                                                    {new Date(item.createdAt).toLocaleDateString("en-US", {
+                                                        weekday: "short",
+                                                        year: "numeric",
+                                                        month: "short",
+                                                        day: "numeric",
+                                                    })
+                                                    }
+                                                </p>
+                                            </td>
+                                            <td className="py-5 px-4 dark:border-strokedark">
+                                                {
+                                                    item.status === true ? (
+                                                        <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
+                                                            Active
+                                                        </p>
+                                                    ) : (
+                                                        <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
+                                                            Disable
+                                                        </p>
+                                                    )
+                                                }
+                                            </td>
+                                            <td className="py-5 px-4 dark:border-strokedark">
+                                                <div className="flex items-center space-x-3.5">
+                                                    <button className="hover:text-primary"
+                                                        onClick={
+                                                            () => {
+                                                                setOpenEdit(true);
+                                                                setDataForEdit(item);
+                                                            }
+                                                        }
+                                                    >
+                                                        <FaRegPenToSquare />
+                                                    </button>
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    ))
+                                   
+                            }
+
                         </tbody>
                     </table>
                 </div>

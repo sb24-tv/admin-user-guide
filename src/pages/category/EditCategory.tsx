@@ -98,13 +98,13 @@ export default function EditCategory(props: MyComponentProps) {
                 slug: slugRef.current?.value,
                 parentCategoryId: null,
                 ordering: orderingRef.current?.value,
-                status: statusCategory
+                status: statusCategory ? 1 : 0
             }
-            
+        //    return console.log('data', data)
             formData.append('catphoto', selectFile);
             formData.append('name', data.name);
             formData.append('slug', data.slug);
-            // formData.append('parentCategoryId', data.parentCategoryId as any);
+            formData.append('parentCategoryId', data.parentCategoryId as any);
             formData.append('ordering', data.ordering);
             formData.append('status', data.status as any);
 

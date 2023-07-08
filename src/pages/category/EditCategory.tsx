@@ -291,13 +291,13 @@ export default function EditCategory(props: MyComponentProps) {
                                                 </div>
                                                 {
                                                     messageSlugExist &&
-                                                    <span className="text-meta-1 text-sm absolute left-0 bottom-[-1.5rem]">
+                                                    <span className="text-meta-1 text-sm absolute left-0 bottom-[-1.5rem] capitalize">
                                                         {messageSlugExist}
                                                     </span>
                                                 }
                                                 {
                                                     messageSlugAvailable &&
-                                                    <span className="text-success text-sm absolute left-0 bottom-[-1.5rem]">
+                                                    <span className="text-success text-sm absolute left-0 bottom-[-1.5rem] capitalize">
                                                         {messageSlugAvailable}
                                                     </span>
                                                 }

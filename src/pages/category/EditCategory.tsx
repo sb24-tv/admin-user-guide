@@ -7,23 +7,23 @@ import { StatusCodes } from "../../enum/index.ts";
 import { toast } from 'react-toastify';
 interface MyComponentProps {
     show: boolean;
-    onCloseCreateCategory: any;
-    createCategory: () => void;
+    onCloseEditCategory: any;
+    dataForEditCategory: any;
+    updateCategory: () => void;
 }
-function getCategoryValue(getFirstCategory: unknown, getSecondCategory: unknown, getLastCategory: unknown) {
-    switch (true) {
-        case !!getLastCategory:
-            return getLastCategory;
-        case !!getSecondCategory:
-            return getSecondCategory;
-        case !!getFirstCategory:
-            return getFirstCategory;
-        default:
-            return null
+function getURL() {
+    // @ts-ignore
+    if (import.meta.env.MODE === "production") {
+        // @ts-ignore
+        return import.meta.env.VITE_API_PROD
+    } else {
+        // @ts-ignore
+        return import.meta.env.VITE_API_DEV
     }
 }
-export default function CreateCategory(props: MyComponentProps) {
-    const { show, onCloseCreateCategory } = props;
+export default function EditCategory(props: MyComponentProps) {
+    const { show, onCloseEditCategory, dataForEditCategory } = props;
+    console.log("this  EditCategory  dataForEditCategory:", dataForEditCategory)
     const [searchParams] = useSearchParams();
     const getFirstCategory = searchParams.get('c1');
     const getSecondCategory = searchParams.get('c2');
@@ -32,7 +32,6 @@ export default function CreateCategory(props: MyComponentProps) {
     const slugRef = useRef<any>(null);
     const orderingRef = useRef<any>(null);
     const imageRef = useRef<any>(null);
-    const getParamsCategory = getCategoryValue(getFirstCategory, getSecondCategory, getLastCategory);
 
     const notify = () => {
         toast.success('Category created successfully', {
@@ -54,7 +53,7 @@ export default function CreateCategory(props: MyComponentProps) {
     const [enabled, setEnabled] = useState<boolean>(true);
 
     const onClose = () => {
-        onCloseCreateCategory();
+        onCloseEditCategory();
         setSelectedFile(null);
         setPreviewURL(null);
         setRequiredName(false);
@@ -77,7 +76,7 @@ export default function CreateCategory(props: MyComponentProps) {
     //     }
     // });
     const handleSubmit = async () => {
-        // getSlug
+
         const nameValue = nameRef.current?.value
         const imageValue = imageRef.current?.value
         if (!nameValue || !imageValue && !getFirstCategory && !getSecondCategory && !getLastCategory) {
@@ -90,7 +89,7 @@ export default function CreateCategory(props: MyComponentProps) {
             const data = {
                 name: nameRef.current?.value,
                 slug: slugRef.current?.value,
-                parentCategoryId: getParamsCategory ? getParamsCategory : null,
+                parentCategoryId: dataForEditCategory.id,
                 ordering: orderingRef.current?.value,
                 status: enabled ? 1 : 0,
             }
@@ -105,8 +104,8 @@ export default function CreateCategory(props: MyComponentProps) {
             APIService.insertFormData('category', formData).then((response: any) => {
                 if (response.status === StatusCodes.OK) {
                     notify();
-                    onCloseCreateCategory();
-                    props.createCategory();
+                    onCloseEditCategory();
+                    props.updateCategory();
                     setSelectedFile(null);
                     setPreviewURL(null);
                     setRequiredName(false);
@@ -118,15 +117,15 @@ export default function CreateCategory(props: MyComponentProps) {
             const data = {
                 name: nameRef.current?.value,
                 slug: slugRef.current?.value,
-                parentCategoryId: getParamsCategory ? getParamsCategory : null,
+                parentCategoryId: dataForEditCategory.id,
                 ordering: orderingRef.current?.value,
                 status: enabled ? 1 : 0,
             }
             APIService.post('category', data).then((response: any) => {
                 if (response.status === StatusCodes.OK) {
                     notify();
-                    onCloseCreateCategory();
-                    props.createCategory();
+                    onCloseEditCategory();
+                    props.updateCategory();
                     setSelectedFile(null);
                     setPreviewURL(null);
                     setRequiredName(false);
@@ -205,6 +204,7 @@ export default function CreateCategory(props: MyComponentProps) {
                                                 type="text"
                                                 placeholder="Name"
                                                 ref={nameRef}
+                                                defaultValue={dataForEditCategory?.name}
                                                 onChange={handleNameChange}
                                                 className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredName ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                             />
@@ -225,6 +225,7 @@ export default function CreateCategory(props: MyComponentProps) {
                                                 type="text"
                                                 placeholder="Slug"
                                                 ref={slugRef}
+                                                defaultValue={dataForEditCategory?.slug}
                                                 disabled
                                                 className="mt-3 w-full rounded-lg bg-transparent py-3 px-5 font-medium outline-none transition disabled:cursor-default border-2 border-white3 disabled:bg-white3 dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
                                             />
@@ -242,7 +243,7 @@ export default function CreateCategory(props: MyComponentProps) {
                                                 <input
                                                     type="number"
                                                     ref={orderingRef}
-                                                    defaultValue={1}
+                                                    defaultValue={dataForEditCategory?.ordering}
                                                     className="mt-3 w-5/6 rounded-lg bg-input py-3 px-5 font-medium outline-none transition border-2 border-input dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
                                                 />
                                                 <div className="mt-3">
@@ -281,9 +282,9 @@ export default function CreateCategory(props: MyComponentProps) {
                                                         onChange={handleFileChange}
                                                     />
                                                     <div className="flex flex-col items-center justify-center space-y-3">
-                                                        {previewURL ? (
+                                                        {dataForEditCategory?.catphoto ? (
                                                             <img
-                                                                src={previewURL}
+                                                                src={getURL() + '/public/images/' + dataForEditCategory?.catphoto}
                                                                 alt="Uploaded Image Preview"
                                                                 className="h-30 w-30 object-contain rounded-lg"
                                                             />
@@ -293,7 +294,7 @@ export default function CreateCategory(props: MyComponentProps) {
                                                             </span>
                                                         )}
                                                         {
-                                                            !previewURL &&
+                                                            !previewURL && !dataForEditCategory?.catphoto &&
                                                             <p>
                                                                 <span className="text-primary">Click to upload</span> or drag and drop image here
                                                             </p>

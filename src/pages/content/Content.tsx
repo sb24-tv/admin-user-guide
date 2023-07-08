@@ -4,6 +4,7 @@ import APIService from "../../service/APIService.ts";
 import Pagination from "../../components/Pagination.tsx";
 import { Link, useSearchParams } from "react-router-dom";
 import { FaRegPenToSquare, FaTrash } from "react-icons/fa6";
+import { StatusCodes } from '../../enum/index.ts';
 
 const Content = () => {
     const [searchParams] = useSearchParams();
@@ -14,7 +15,7 @@ const Content = () => {
 
     useEffect(() => {
         APIService.get(`content?page=${page}`).then((response: any) => {
-            if (response.status === 200) {
+            if (response.status === StatusCodes.OK) {
                 setContent(response.data.data);
                 setPage(response.data.pagination);
             }
@@ -142,7 +143,9 @@ const Content = () => {
                                     ?
                                     <>
                                         Showing all
-                                        pages ? ' ' + pages.total + ' ' : 0
+                                        {
+                                            pages ? ' ' + pages.total + ' ' : 0
+                                        }
                                         results
                                     </>
                                     :

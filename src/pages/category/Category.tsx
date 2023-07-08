@@ -7,6 +7,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import CreateCategory from "./CreateCategory.tsx";
+import EditCategory from "./EditCategory.tsx";
 
 function getURL() {
     // @ts-ignore
@@ -32,6 +33,8 @@ function getURL() {
 // }
 
 function TableRow({ data, onSelect }: any) {
+    const [dataForEdit, setDataForEdit] = useState<any>(null);
+    const [open, setOpen] = useState<boolean>(false);
     const onError = (e: any) => {
         e.target.src = NoImage;
     }
@@ -39,81 +42,96 @@ function TableRow({ data, onSelect }: any) {
     const getFirstCategory = searchParams.get('c1');
     const getSecondCategory = searchParams.get('c2');
     const getLastCategory = searchParams.get('c3');
-    return data.map((item: any, index: number) => (
-        <tr className="border-b border-[#eee] dark:border-graydark last:border-b-0" key={index}>
-            <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
-                {
-                    data.length > 0
-                    &&
-                    <p className="text-sm text-black dark:text-white">
-                        {index + 1}
-                    </p>
-                }
-            </td>
-            <td onClick={() => item.subcategories && onSelect(item)}
-                className={`py-5 px-4 pl-9 dark:border-strokedark xl:pl-11 ${item.subcategories && 'cursor-pointer'}`}
-            >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                    {
-                        !getFirstCategory && !getSecondCategory && !getLastCategory &&
-                        <div className="h-12.5 w-15 rounded-md">
-                            <img
-                                src={item.catphoto ? getURL() + '/public/images/' + item.catphoto : NoImage}
-                                alt={item.name} className="w-20" onError={onError} />
-                        </div>
-                    }
-                    <p className="text-base text-black dark:text-white">
-                        {item.name}
-                    </p>
-                </div>
 
-            </td>
-            <td className="py-5 px-4 dark:border-strokedark">
-                <p className="text-base text-black dark:text-white">
-                    {item.slug}
-                </p>
-            </td>
-            <td className="py-5 px-4 dark:border-strokedark">
-                <p className="text-base text-black dark:text-white">
-                    {item.ordering}
-                </p>
-            </td>
-            <td className="py-5 px-4 dark:border-strokedark">
-                <p className="text-black dark:text-white">
-                    {new Date(item.createdAt).toLocaleDateString("en-US", {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                    })
-                    }
-                </p>
-            </td>
-            <td className="py-5 px-4 dark:border-strokedark">
-                {
-                    item.status === true ? (
-                        <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
-                            Active
-                        </p>
-                    ) : (
-                        <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
-                            Disable
-                        </p>
-                    )
-                }
-            </td>
-            <td className="py-5 px-4 dark:border-strokedark">
-                <div className="flex items-center space-x-3.5">
-                    <button className="hover:text-primary">
-                        <FaTrash />
-                    </button>
-                    <button className="hover:text-primary">
-                        <FaRegPenToSquare />
-                    </button>
-                </div>
-            </td>
-        </tr>
-    ))
+    const onCloseEditCategory = () => {
+        setOpen(false);
+    }
+    return (
+        <>
+            <EditCategory show={open} onCloseEditCategory={onCloseEditCategory} dataForEditCategory={dataForEdit} updateCategory={() => { }} />
+            {
+                data.map((item: any, index: number) => (
+                    <tr className="border-b border-[#eee] dark:border-graydark last:border-b-0" key={index}>
+                        <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                            {
+                                data.length > 0
+                                &&
+                                <p className="text-sm text-black dark:text-white">
+                                    {index + 1}
+                                </p>
+                            }
+                        </td>
+                        <td onClick={() => item.subcategories && onSelect(item)}
+                            className={`py-5 px-4 pl-9 dark:border-strokedark xl:pl-11 ${item.subcategories && 'cursor-pointer'}`}
+                        >
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                {
+                                    !getFirstCategory && !getSecondCategory && !getLastCategory &&
+                                    <div className="h-12.5 w-15 rounded-md">
+                                        <img
+                                            src={item.catphoto ? getURL() + '/public/images/' + item.catphoto : NoImage}
+                                            alt={item.name} className="w-20" onError={onError} />
+                                    </div>
+                                }
+                                <p className="text-base text-black dark:text-white">
+                                    {item.name}
+                                </p>
+                            </div>
+
+                        </td>
+                        <td className="py-5 px-4 dark:border-strokedark">
+                            <p className="text-base text-black dark:text-white">
+                                {item.slug}
+                            </p>
+                        </td>
+                        <td className="py-5 px-4 dark:border-strokedark">
+                            <p className="text-base text-black dark:text-white">
+                                {item.ordering}
+                            </p>
+                        </td>
+                        <td className="py-5 px-4 dark:border-strokedark">
+                            <p className="text-black dark:text-white">
+                                {new Date(item.createdAt).toLocaleDateString("en-US", {
+                                    weekday: "short",
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                })
+                                }
+                            </p>
+                        </td>
+                        <td className="py-5 px-4 dark:border-strokedark">
+                            {
+                                item.status === true ? (
+                                    <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
+                                        Active
+                                    </p>
+                                ) : (
+                                    <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
+                                        Disable
+                                    </p>
+                                )
+                            }
+                        </td>
+                        <td className="py-5 px-4 dark:border-strokedark">
+                            <div className="flex items-center space-x-3.5">
+                                <button className="hover:text-primary"
+                                    onClick={
+                                        () => {
+                                            setOpen(true);
+                                            setDataForEdit(item);
+                                        }
+                                    }
+                                >
+                                    <FaRegPenToSquare />
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                ))
+            }
+        </>
+    )
 }
 
 const Category = () => {
@@ -121,16 +139,7 @@ const Category = () => {
     const getFirstCategory = searchParams.get('c1');
     const getSecondCategory = searchParams.get('c2');
     const getLastCategory = searchParams.get('c3');
-    const nameRef = useRef<any>(null);
-    const slugRef = useRef<any>(null);
-    const orderingRef = useRef<any>(null);
-    const imageRef = useRef<any>(null);
     const [category, setCategory] = useState([]);
-    const [selectFile, setSelectedFile] = useState<File | null>(null);
-    const [previewURL, setPreviewURL] = useState<string | null>(null);
-    const [requiredName, setRequiredName] = useState<boolean>(false);
-    const [enabled, setEnabled] = useState<boolean>(true);
-    // console.log('this select file',selectFile.name)
     let [open, setOpen] = useState<boolean>(false);
     const navigate = useNavigate();
     const fetchData = () => {
@@ -168,12 +177,12 @@ const Category = () => {
         fetchData();
     }, [getFirstCategory, getSecondCategory, getLastCategory]);
 
-    const onCloseEdiCategory = () => {
+    const onCloseCreateCategory = () => {
         setOpen(false);
     }
     return (
         <>
-            <CreateCategory show={open} onCloseEdiCategory={onCloseEdiCategory} createCategory={() => fetchData()} />
+            <CreateCategory show={open} onCloseCreateCategory={onCloseCreateCategory} createCategory={() => fetchData()} />
             <div className="mb-6 flex flex-col gap-3 sm:flex-row items-center">
                 {
                     getFirstCategory &&

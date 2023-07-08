@@ -89,7 +89,7 @@ class APIService {
 		return this.makeRequest<T>(endpoint, "DELETE");
 	}
 
-	public insertFormData<T>(endpoint: string, data: FormData): Promise<T> {
+	public async insertFormData<T>(endpoint: string, data: FormData): Promise<T | any> {
 		const url = `${this.baseUrl}/api/${endpoint}`;
 		const options: IRequestInit = {
 			method: 'POST',
@@ -98,12 +98,18 @@ class APIService {
 			},
 			body: data
 		};
-		return fetch(url, options).then(response => {
-			if (!response.ok) {
+		try {
+			const response = await fetch(url, options);
+			if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
 				throw new Error(`Request failed with status ${response.status}`);
 			}
-			return response.json()
-		})
+			return {
+				data: await response.json(),
+				status: response.status
+			}
+		} catch (error: any) {
+			// console.error("API Request Error:", error);
+		}
 	}
 }
 export default APIService.getInstance();

@@ -117,7 +117,7 @@ export default function CreateCategory(props: MyComponentProps) {
         } else {
             const data = {
                 name: nameRef.current?.value,
-                slug: slugRef.current?.value,
+                slug: null,
                 parentCategoryId: getParamsCategory ? getParamsCategory : null,
                 ordering: orderingRef.current?.value,
                 status: enabled ? 1 : 0,
@@ -216,19 +216,21 @@ export default function CreateCategory(props: MyComponentProps) {
                                                 )
                                             }
                                         </div>
-
-                                        <div>
-                                            <label className="font-medium text-black dark:text-white">
-                                                Slug
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Slug"
-                                                ref={slugRef}
-                                                disabled
-                                                className="mt-3 w-full rounded-lg bg-transparent py-3 px-5 font-medium outline-none transition disabled:cursor-default border-2 border-white3 disabled:bg-white3 dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
-                                            />
-                                        </div>
+                                        {
+                                            !getFirstCategory && !getSecondCategory && !getLastCategory &&
+                                            <div>
+                                                <label className="font-medium text-black dark:text-white">
+                                                    Slug
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Slug"
+                                                    ref={slugRef}
+                                                    disabled
+                                                    className="mt-3 w-full rounded-lg bg-transparent py-3 px-5 font-medium outline-none transition disabled:cursor-default border-2 border-white3 disabled:bg-white3 dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
+                                                />
+                                            </div>
+                                        }
                                         <div>
                                             <div className="flex justify-between">
                                                 <label className="font-medium text-black dark:text-white">

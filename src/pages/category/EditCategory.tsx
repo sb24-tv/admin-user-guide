@@ -24,8 +24,6 @@ function getURL() {
 export default function EditCategory(props: MyComponentProps) {
     const { show, onCloseEditCategory, dataForEditCategory } = props;
     const [categorySelected, setCategorySelected] = useState<any>({});
-    // console.log("this  EditCategory  dataForEditCategory:", dataForEditCategory)
-    console.log("this:", categorySelected?.status)
     const [searchParams] = useSearchParams();
     const getFirstCategory = searchParams.get('c1');
     const getSecondCategory = searchParams.get('c2');
@@ -100,7 +98,7 @@ export default function EditCategory(props: MyComponentProps) {
                 ordering: orderingRef.current?.value,
                 status: statusCategory ? 1 : 0
             }
-        //    return console.log('data', data)
+            //    return console.log('data', data)
             formData.append('catphoto', selectFile);
             formData.append('name', data.name);
             formData.append('slug', data.slug);
@@ -125,12 +123,11 @@ export default function EditCategory(props: MyComponentProps) {
             const statusCategory = categorySelected.status;
             const data = {
                 name: nameRef.current?.value,
-                slug: slugRef.current?.value,
+                slug: null,
                 ordering: orderingRef.current?.value,
                 status: statusCategory
             }
             APIService.put(`category/${id}`, data).then((response: any) => {
-                console.log('response', response)
                 if (response.status === StatusCodes.OK) {
                     notify();
                     onCloseEditCategory();
@@ -145,7 +142,6 @@ export default function EditCategory(props: MyComponentProps) {
         }
 
     }
-    console.log('dataForEditCategory', dataForEditCategory)
     const handleFileChange = (event: any) => {
         setRequiredImage(false);
         const file = event.target.files && event.target.files[0];
@@ -225,20 +221,22 @@ export default function EditCategory(props: MyComponentProps) {
                                                 )
                                             }
                                         </div>
-
-                                        <div>
-                                            <label className="font-medium text-black dark:text-white">
-                                                Slug
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Slug"
-                                                ref={slugRef}
-                                                defaultValue={dataForEditCategory?.slug}
-                                                disabled
-                                                className="mt-3 w-full rounded-lg bg-transparent py-3 px-5 font-medium outline-none transition disabled:cursor-default border-2 border-white3 disabled:bg-white3 dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
-                                            />
-                                        </div>
+                                        {
+                                            !getFirstCategory && !getSecondCategory && !getLastCategory &&
+                                            <div>
+                                                <label className="font-medium text-black dark:text-white">
+                                                    Slug
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Slug"
+                                                    ref={slugRef}
+                                                    defaultValue={dataForEditCategory?.slug}
+                                                    disabled
+                                                    className="mt-3 w-full rounded-lg bg-transparent py-3 px-5 font-medium outline-none transition disabled:cursor-default border-2 border-white3 disabled:bg-white3 dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white"
+                                                />
+                                            </div>
+                                        }
                                         <div>
                                             <div className="flex justify-between">
                                                 <label className="font-medium text-black dark:text-white">

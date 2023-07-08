@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import APIService from "../../service/APIService.ts";
 import { Link, useSearchParams } from "react-router-dom";
 import NoImage from "../../images/logo/black-and-white.png"
-import { FaRegPenToSquare, FaAngleLeft } from "react-icons/fa6";
+import { FaRegPenToSquare } from "react-icons/fa6";
 import CreateCategory from "./CreateCategory.tsx";
 import EditCategory from "./EditCategory.tsx";
 import NoFile from "../../images/logo/no-task.png";
@@ -55,12 +55,6 @@ const Category = () => {
             <CreateCategory show={open} onCloseCreateCategory={onCloseCreateCategory} createCategory={() => fetchData()} />
             <EditCategory show={openEdit} onCloseEditCategory={onCloseEditCategory} dataForEditCategory={dataForEdit} updateCategory={() => fetchData()} />
             <div className="mb-6 flex flex-col gap-3 sm:flex-row items-center">
-                {
-                    getFirstCategory &&
-                    <Link to="/category" className="inline-flex items-center justify-center rounded-full bg-primary py-3 px-3 text-center font-medium text-white">
-                        <FaAngleLeft className="fill-white" />
-                    </Link>
-                }
                 <h2 className="text-title-md2 font-semibold text-black dark:text-white">
                     Category
                 </h2>
@@ -68,7 +62,51 @@ const Category = () => {
             <div
                 className="rounded-xl bg-white px-5 pt-6 pb-2.5 box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2 sm:px-7.5 xl:pb-1 ">
                 <div className="max-w-full overflow-x-auto">
-                    <div className="flex justify-end mb-3">
+                    <div className="flex justify-between items-center mb-3">
+                        <div>
+                            {
+                                getFirstCategory && !getSecondCategory && !getLastCategory &&
+                                <>
+                                    <Link to="/category">
+                                        <span className="text-orange-dark font-medium hover:text-primary duration-100">Main</span>
+                                    </Link>
+                                    <span className="mx-2">/</span>
+                                    <span className="text-gray-4 font-medium">First Category</span>
+                                </>
+                            }
+                            {
+                                getFirstCategory && getSecondCategory && !getLastCategory &&
+                                <>
+                                    <Link to="/category">
+                                        <span className="text-orange-dark font-medium hover:text-primary duration-100">Main</span>
+                                    </Link>
+                                    <span className="mx-2">/</span>
+                                    <Link to={`/category?c1=${getFirstCategory}`}>
+                                        <span className="text-orange-dark font-medium hover:text-primary duration-100">First Category</span>
+                                    </Link>
+                                    <span className="mx-2">/</span>
+                                    <span className="text-gray-4 font-medium">Second Category</span>
+                                </>
+                            }
+                            {
+                                getFirstCategory && getSecondCategory && getLastCategory &&
+                                <>
+                                    <Link to="/category">
+                                        <span className="text-orange-dark font-medium hover:text-primary duration-100">Main</span>
+                                    </Link>
+                                    <span className="mx-2">/</span>
+                                    <Link to={`/category?c1=${getFirstCategory}`}>
+                                        <span className="text-orange-dark font-medium hover:text-primary duration-100">First Category</span>
+                                    </Link>
+                                    <span className="mx-2">/</span>
+                                    <Link to={`/category?c1=${getFirstCategory}&c2=${getSecondCategory}`}>
+                                        <span className="text-orange-dark font-medium hover:text-primary duration-100">Second Category</span>
+                                    </Link>
+                                    <span className="mx-2">/</span>
+                                    <span className="text-gray-4 font-medium">Last Category</span>
+                                </>
+                            }
+                        </div>
                         <div className="inline-flex items-center justify-center rounded-full bg-primary py-2.5 px-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-5 xl:px-6 cursor-pointer"
                             onClick={() => setOpen(true)}
                         >
@@ -84,9 +122,12 @@ const Category = () => {
                                 <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                     Name
                                 </th>
-                                <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
-                                    Slug
-                                </th>
+                                {
+                                    !getFirstCategory && !getSecondCategory && !getLastCategory &&
+                                    <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
+                                        Slug
+                                    </th>
+                                }
                                 <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
                                     Order
                                 </th>
@@ -116,7 +157,7 @@ const Category = () => {
                                                                     lastSubcategory.subcategories.length > 0 ?
                                                                         lastSubcategory.subcategories.map((lastSubSubcategory: any, index: number) => (
 
-                                                                            <tr className="border-b border-[#eee] last:border-b-0" key={index}>
+                                                                            <tr className="border-b border-[#eee] dark:border-graydark last:border-b-0" key={index}>
                                                                                 <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                                                                     {
                                                                                         <p className="text-sm text-black dark:text-white">
@@ -127,11 +168,6 @@ const Category = () => {
                                                                                 <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
                                                                                     <p className="text-base text-black dark:text-white">
                                                                                         {lastSubSubcategory.name}
-                                                                                    </p>
-                                                                                </td>
-                                                                                <td className="py-5 px-4 dark:border-strokedark">
-                                                                                    <p className="text-base text-black dark:text-white">
-                                                                                        {lastSubSubcategory.slug}
                                                                                     </p>
                                                                                 </td>
                                                                                 <td className="py-5 px-4 dark:border-strokedark">
@@ -182,7 +218,7 @@ const Category = () => {
                                                                         )
                                                                         :
                                                                         <tr>
-                                                                            <td colSpan={7} className="py-4 px-4 dark:border-strokedark">
+                                                                            <td colSpan={6} className="py-4 px-4 dark:border-strokedark">
                                                                                 <div className="w-full flex flex-col items-center justify-center">
                                                                                     <img src={NoFile} alt="No Category" className="w-25 my-4 text-center" />
                                                                                     <p className="text-sm text-black dark:text-white text-center">
@@ -216,7 +252,7 @@ const Category = () => {
                                                     {
                                                         subcategory.subcategories.length > 0 ?
                                                             subcategory.subcategories.map((subSubcategory: any, index: number) => (
-                                                                <tr className="border-b border-[#eee] last:border-b-0" key={index}>
+                                                                <tr className="border-b border-[#eee] dark:border-graydark last:border-b-0" key={index}>
                                                                     <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                                                         {
                                                                             <p className="text-sm text-black dark:text-white">
@@ -232,14 +268,11 @@ const Category = () => {
                                                                         </Link>
                                                                     </td>
                                                                     <td className="py-5 px-4 dark:border-strokedark">
-                                                                        <p className="text-base text-black dark:text-white">
-                                                                            {subSubcategory.slug}
-                                                                        </p>
-                                                                    </td>
-                                                                    <td className="py-5 px-4 dark:border-strokedark">
-                                                                        <p className="text-base text-black dark:text-white">
-                                                                            {subSubcategory.ordering}
-                                                                        </p>
+                                                                        <Link to={`?c1=${item.id}&c2=${subcategory.id}&c3=${subSubcategory.id}`}>
+                                                                            <p className="text-base text-black dark:text-white">
+                                                                                {subSubcategory.ordering}
+                                                                            </p>
+                                                                        </Link>
                                                                     </td>
                                                                     <td className="py-5 px-4 dark:border-strokedark">
                                                                         <p className="text-black dark:text-white">
@@ -283,7 +316,7 @@ const Category = () => {
                                                             ))
                                                             :
                                                             <tr>
-                                                                <td colSpan={7} className="py-4 px-4 dark:border-strokedark">
+                                                                <td colSpan={6} className="py-4 px-4 dark:border-strokedark">
                                                                     <div className="w-full flex flex-col items-center justify-center">
                                                                         <img src={NoFile} alt="No Category" className="w-25 my-4 text-center" />
                                                                         <p className="text-sm text-black dark:text-white text-center">
@@ -303,14 +336,13 @@ const Category = () => {
                             }
 
                             {
-
                                 getFirstCategory && !getSecondCategory &&
                                 category.filter((item: any) => item.id == parseInt(getFirstCategory)).map((item: any, key: number) => (
                                     <React.Fragment key={key}>
                                         {
                                             item.subcategories.length > 0 ?
                                                 item.subcategories.map((subcategory: any, index: number) => (
-                                                    <tr className="border-b border-[#eee] last:border-b-0" key={index}>
+                                                    <tr className="border-b border-[#eee] dark:border-graydark last:border-b-0" key={index}>
                                                         <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                                             {
                                                                 <p className="text-sm text-black dark:text-white">
@@ -318,7 +350,7 @@ const Category = () => {
                                                                 </p>
                                                             }
                                                         </td>
-                                                        <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                                        <td className="py-5 px-4 dark:border-strokedark xl:pl-11">
                                                             <Link to={`?c1=${item.id}&c2=${subcategory.id}`}>
                                                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                                                                     <p className="text-base text-black dark:text-white">
@@ -328,14 +360,11 @@ const Category = () => {
                                                             </Link>
                                                         </td>
                                                         <td className="py-5 px-4 dark:border-strokedark">
-                                                            <p className="text-base text-black dark:text-white">
-                                                                {subcategory.slug}
-                                                            </p>
-                                                        </td>
-                                                        <td className="py-5 px-4 dark:border-strokedark">
-                                                            <p className="text-base text-black dark:text-white">
-                                                                {subcategory.ordering}
-                                                            </p>
+                                                            <Link to={`?c1=${item.id}&c2=${subcategory.id}`}>
+                                                                <p className="text-base text-black dark:text-white">
+                                                                    {subcategory.ordering}
+                                                                </p>
+                                                            </Link>
                                                         </td>
                                                         <td className="py-5 px-4 dark:border-strokedark">
                                                             <p className="text-black dark:text-white">
@@ -380,7 +409,7 @@ const Category = () => {
                                                 ))
                                                 :
                                                 <tr>
-                                                    <td colSpan={7} className="py-4 px-4 dark:border-strokedark">
+                                                    <td colSpan={6} className="py-4 px-4 dark:border-strokedark">
                                                         <div className="w-full flex flex-col items-center justify-center">
                                                             <img src={NoFile} alt="No Category" className="w-25 my-4 text-center" />
                                                             <p className="text-sm text-black dark:text-white text-center">
@@ -394,9 +423,10 @@ const Category = () => {
                                 ))
                             }
                             {
-                                !getFirstCategory && !getSecondCategory &&
+                                category.length > 0 ?
+                                    !getFirstCategory && !getSecondCategory &&
                                     category.map((item: any, index: number) => (
-                                        <tr className="border-b border-[#eee] last:border-b-0" key={index}>
+                                        <tr className="border-b border-[#eee] dark:border-graydark last:border-b-0" key={index}>
                                             <td className="py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                                 {
                                                     <p className="text-sm text-black dark:text-white">
@@ -419,14 +449,18 @@ const Category = () => {
                                                 </Link>
                                             </td>
                                             <td className="py-5 px-4 dark:border-strokedark">
-                                                <p className="text-base text-black dark:text-white">
-                                                    {item.slug}
-                                                </p>
+                                                <Link to={`?c1=${item.id}`}>
+                                                    <p className="text-base text-black dark:text-white">
+                                                        {item.slug}
+                                                    </p>
+                                                </Link>
                                             </td>
                                             <td className="py-5 px-4 dark:border-strokedark">
-                                                <p className="text-base text-black dark:text-white">
-                                                    {item.ordering}
-                                                </p>
+                                                <Link to={`?c1=${item.id}`}>
+                                                    <p className="text-base text-black dark:text-white">
+                                                        {item.ordering}
+                                                    </p>
+                                                </Link>
                                             </td>
                                             <td className="py-5 px-4 dark:border-strokedark">
                                                 <p className="text-black dark:text-white">
@@ -469,7 +503,18 @@ const Category = () => {
 
                                         </tr>
                                     ))
-                                   
+                                    :
+                                    <tr>
+                                        <td colSpan={7} className="py-4 px-4 dark:border-strokedark">
+                                            <div className="w-full flex flex-col items-center justify-center">
+                                                <img src={NoFile} alt="No Category" className="w-25 my-4 text-center" />
+                                                <p className="text-sm text-black dark:text-white text-center">
+                                                    No Category Found
+                                                </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+
                             }
 
                         </tbody>

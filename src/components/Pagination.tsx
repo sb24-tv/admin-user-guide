@@ -1,9 +1,18 @@
 import React from 'react'
-import {FiChevronLeft, FiChevronRight} from 'react-icons/fi'
-import {Link} from 'react-router-dom'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
+interface PaginationProps {
+    pagination: (current: number) => void;
+    pages: {
+        total: number;
+        limit: number;
+        current_page: number;
+    };
+    searchKey: any;
+}
 
-const Pagination = ({pagination, pages, searchKey}) => {
-    const handlePagination = (current) => {
+function Pagination({ pagination, pages, searchKey }: PaginationProps) {
+    const handlePagination = (current: any) => {
         pagination(current);
     };
     const totalPage = Math.ceil(pages.total / pages.limit);
@@ -20,7 +29,7 @@ const Pagination = ({pagination, pages, searchKey}) => {
                         className="p-3 rounded-[50%] hover:text-orange-dark dark:hover:text-orange-dark dark:text-white2"
                         onClick={() => handlePagination(currentPage - 1)}
                         to={filterKey ? `${filterKey}page=${currentPage - 1}` : `?page=${currentPage - 1}`}>
-                        <FiChevronLeft className="h-6 w-5 font-bold"/>
+                        <FiChevronLeft className="h-6 w-5 font-bold" />
                     </Link>
                 </li>
             }
@@ -43,8 +52,8 @@ const Pagination = ({pagination, pages, searchKey}) => {
                     </>
                     :
                     currentPage % 5 >= 0 &&
-                    currentPage > 4 &&
-                    currentPage + 2 < totalPage
+                        currentPage > 4 &&
+                        currentPage + 2 < totalPage
                         ?
                         <>
                             <li>
@@ -96,8 +105,8 @@ const Pagination = ({pagination, pages, searchKey}) => {
                         </>
                         :
                         currentPage % 5 >= 0 &&
-                        currentPage > 4 &&
-                        currentPage + 2 >= totalPage
+                            currentPage > 4 &&
+                            currentPage + 2 >= totalPage
                             ?
                             <>
                                 <li>
@@ -178,7 +187,7 @@ const Pagination = ({pagination, pages, searchKey}) => {
                         className="p-3 rounded-[50%] hover:text-orange-dark dark:hover:text-orange-dark dark:text-white2"
                         onClick={() => handlePagination(currentPage + 1)}
                         to={filterKey ? `${filterKey}page=${currentPage + 1}` : `?page=${currentPage + 1}`}>
-                        <FiChevronRight className="h-6 w-5 font-bold"/>
+                        <FiChevronRight className="h-6 w-5 font-bold" />
                     </Link>
                 </li>
             }

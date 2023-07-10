@@ -33,7 +33,7 @@ const ECommerce = () => {
         <>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-7.5">
                 <Link to="/category"
-                    className="rounded-xl bg-white py-6 px-7.5  box-shadow-custom-2 dark:border-strokedark dark:bg-boxdark">
+                    className="rounded-xl bg-white py-6 px-7.5  box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2">
                     <div
                         className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
                         <FaBarsStaggered className="fill-orange-dark dark:fill-white"/>
@@ -49,7 +49,7 @@ const ECommerce = () => {
                     </div>
                 </Link>
                 <Link to="/content"
-                    className="rounded-xl bg-white py-6 px-7.5 box-shadow-custom-2 dark:border-strokedark dark:bg-boxdark">
+                    className="rounded-xl bg-white py-6 px-7.5 box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2">
                     <div
                         className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
                         <FaNewspaper className="fill-orange-dark dark:fill-white"/>
@@ -65,7 +65,7 @@ const ECommerce = () => {
                     </div>
                 </Link>
                 <Link to="/user"
-                    className="rounded-xl bg-white py-6 px-7.5 box-shadow-custom-2 dark:border-strokedark dark:bg-boxdark">
+                    className="rounded-xl bg-white py-6 px-7.5 box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2">
                     <div
                         className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
                         <FaUserLarge className="fill-orange-dark dark:fill-white"/>

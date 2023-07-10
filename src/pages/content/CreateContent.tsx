@@ -1,184 +1,377 @@
-import {Editor} from '@tinymce/tinymce-react';
-import {useEffect, useRef, useState} from "react";
+import { Editor } from '@tinymce/tinymce-react';
+import { useEffect, useRef, useState } from "react";
 import APIService from "../../service/APIService.ts";
-import {Navigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { StatusCodes } from '../../enum/index.ts';
+import { toast } from 'react-toastify';
+import { FaCaretDown, FaCheck } from "react-icons/fa6";
 
 
 const CreateContent = () => {
-        // const editorRef = useRef(null);
-        const titleRef = useRef<any>(null);
-        const bodyRef = useRef<any>(null);
-        const categoryRef = useRef<any>(null);
-        const [requiredTitle, setRequiredTitle] = useState<boolean>(false);
-        // const sizeLimit = limit ?? 50;
-        // const [value, setValue] = useState('');
-        // const [length, setLength] = useState(0);
-        // const log = () => {
-        //     if (editorRef.current) {
-        //         console.log(editorRef.current.getContent());
-        //     }
-        // };
-        const [category, setCategory] = useState([]);
-        // const [title, setTitle] = useState<any>();
+    // const editorRef = useRef(null);
+    const titleRef = useRef<any>(null);
+    const bodyRef = useRef<any>(null);
+    const [requiredTitle, setRequiredTitle] = useState<boolean>(false);
+    const [requiredCategory, setRequiredCategory] = useState<boolean>(false);
+    const [enabled, setEnabled] = useState<boolean>(true);
+    const [showSubCategory, setSubCategory] = useState<boolean>(false);
+    const [openId, setOpenId] = useState<number>(0);
+    const [getId, setGetId] = useState<number>(0);
+    const navigate = useNavigate();
 
-        useEffect(() => {
-            APIService.get(`subcat`).then((response: any) => {
-                if (response.status === 200) {
-                    setCategory(response.data.data);
-                }
-            });
-        }, []);
+    // const sizeLimit = limit ?? 50;
+    // const [value, setValue] = useState('');
+    // const [length, setLength] = useState(0);
+    // const log = () => {
+    //     if (editorRef.current) {
+    //         console.log(editorRef.current.getContent());
+    //     }
+    // };
+    const [category, setCategory] = useState([]);
+    // const [title, setTitle] = useState<any>();
+    // console.log('this ref={categoryRef}', categoryRef);
 
-        console.log('this category', requiredTitle)
-        const handleSubmit = async () => {
-            console.log('this title', titleRef.current?.value)
-            console.log('this category', categoryRef.current?.value)
-            console.log('this body', bodyRef.current?.value)
-            if (titleRef.current?.value === '') {
-                setRequiredTitle(true);
-                return;
+    const notify = () => {
+        toast.success('Content created successfully', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
+
+    useEffect(() => {
+        APIService.get(`subcat`).then((response: any) => {
+            if (response.status === 200) {
+                setCategory(response.data.data);
             }
-            const data = {
-                title: titleRef.current?.value,
-                categoryId: categoryRef.current?.value,
-                body: bodyRef.current?.value
-            };
-            console.log('this data', data);
-            APIService.post(`content`, data).then((response: any) => {
-                if (response.data) {
-                    // @ts-ignore
-                    Navigate('/content');
-                }
-            }).catch(() => {
-                console.log('create unsuccessful')
-            })
-        }
+        });
+    }, []);
 
-        return (
-            <>
-                <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <h2 className="text-title-md2 font-semibold text-black dark:text-white">
-                        Create Content
-                    </h2>
-                </div>
-                <div className="flex justify-between gap-5">
-                    <div className="flex flex-col w-full">
-                        <div
-                            className="rounded-xl bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                            <div>
-                                <div className="p-6.5">
-                                    <div className="mb-4.5">
-                                        <label className="mb-2.5 block text-black dark:text-white">
-                                            Title <span className="text-meta-1">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            placeholder="Title"
-                                            name="title"
-                                            ref={titleRef}
-                                            className={`w-full rounded-md border bg-input py-3 px-5 font-medium outline-none transition disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input ${requiredTitle ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
-                                        />
-                                        {
-                                            requiredTitle && <span className="text-meta-1 text-sm">Title is required</span>
-                                        }
-                                    </div>
-                                    <div className="mb-6">
-                                        <label className="mb-2.5 block text-black dark:text-white">
-                                            Content Detail
-                                        </label>
-                                        {/*<textarea*/}
-                                        {/*    rows={6}*/}
-                                        {/*    placeholder="Type your message"*/}
-                                        {/*    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"*/}
-                                        {/*></textarea>*/}
-                                        <Editor
-                                            // onInit={(evt, editor) => editorRef.current = editor}
-                                            // value={value}
-                                            // onInit={handleInit}
-                                            // onEditorChange={handleUpdate}
-                                            // onBeforeAddUndo={handleBeforeAddUndo}
-                                            ref={bodyRef}
-                                            initialValue="<p>This is the initial content of the editor.</p>"
-                                            init={{
-                                                height: 500,
-                                                apiKey: 'jt1r00t0c59ovwybqzihrm9ubvrvmu55z4qgn9as0anqfs41',
-                                                menubar: false,
-                                                plugins: [
-                                                    'advlist autolink lists link image charmap print preview anchor',
-                                                    'searchreplace visualblocks code fullscreen',
-                                                    'insertdatetime media table paste code help wordcount'
-                                                ],
-                                                toolbar: 'undo redo | formatselect | ' +
-                                                    'bold italic backcolor | alignleft aligncenter ' +
-                                                    'alignright alignjustify | bullist numlist outdent indent | ' +
-                                                    'removeformat | help',
-                                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                            }}
-                                        />
-                                    </div>
+    const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+
+    const handleSubmit = async () => {
+        const title = titleRef.current?.value;
+        const category = getId !== 0 && getId;
+        if (!title || !category) {
+            if (!title) setRequiredTitle(true);
+            if (!category) setRequiredCategory(true);
+            return;
+        }
+        const data = {
+            title: titleRef.current?.value,
+            categoryId: getId as number,
+            body: bodyRef.current?.value,
+            allowPublic: enabled ? 1 : 0,
+            userId: userId
+
+        };
+        APIService.post(`content`, data).then((response: any) => {
+            if (response.status === StatusCodes.CREATED) {
+                notify();
+                navigate('/content');
+                setRequiredTitle(false);
+                setRequiredCategory(false);
+                setEnabled(true);
+                setOpenId(0);
+                setGetId(0);
+            }
+        }
+        );
+    }
+    const handleCategory = (id: number) => {
+        if (openId === id) {
+            setSubCategory(!showSubCategory);
+            setOpenId(id);
+            setGetId(0);
+        }
+        if (openId !== id) {
+            setSubCategory(true);
+            setOpenId(id);
+            setGetId(0);
+        }
+    }
+    return (
+        <>
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+                    Create Content
+                </h2>
+            </div>
+            <div className="flex justify-between gap-5">
+                <div className="flex flex-col w-full">
+                    <div
+                        className="rounded-xl bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                        <div>
+                            <div className="p-6.5">
+                                <div className="mb-7 relative">
+                                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Title <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Title"
+                                        name="title"
+                                        ref={titleRef}
+                                        onChange={() => setRequiredTitle(false)}
+                                        className={`w-full rounded-md border bg-input py-3 px-5 font-medium outline-none transition disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input ${requiredTitle ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
+                                    />
+                                    {
+                                        requiredTitle && <span className="text-meta-1 text-sm absolute left-0 bottom-[-1.5rem]">Title is required</span>
+                                    }
+                                </div>
+
+                                <div className="mb-6">
+                                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Content Detail
+                                    </label>
+                                    {/*<textarea*/}
+                                    {/*    rows={6}*/}
+                                    {/*    placeholder="Type your message"*/}
+                                    {/*    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"*/}
+                                    {/*></textarea>*/}
+                                    <Editor
+                                        // onInit={(evt, editor) => editorRef.current = editor}
+                                        // value={value}
+                                        // onInit={handleInit}
+                                        // onEditorChange={handleUpdate}
+                                        // onBeforeAddUndo={handleBeforeAddUndo}
+                                        ref={bodyRef}
+                                        initialValue="<p>This is the initial content of the editor.</p>"
+                                        init={{
+                                            height: 500,
+                                            apiKey: 'jt1r00t0c59ovwybqzihrm9ubvrvmu55z4qgn9as0anqfs41',
+                                            menubar: false,
+                                            plugins: [
+                                                'advlist autolink lists link image charmap print preview anchor',
+                                                'searchreplace visualblocks code fullscreen',
+                                                'insertdatetime media table paste code help wordcount'
+                                            ],
+                                            toolbar: 'undo redo | formatselect | ' +
+                                                'bold italic backcolor | alignleft aligncenter ' +
+                                                'alignright alignjustify | bullist numlist outdent indent | ' +
+                                                'removeformat | help',
+                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div className="flex flex-col w-6/12">
-                        <div
-                            className="rounded-xl bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                <div className="flex flex-col w-6/12">
+                    <div
+                        className="rounded-xl bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
 
-                            <div className="p-6.5">
+                        <div className="p-6.5">
 
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Select Category
-                                    </label>
-                                    <div className="relative z-20 bg-transparent dark:bg-form-input">
-                                        <select
-                                            name="value"
-                                            ref={categoryRef}
-                                            className="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
-                                            {
-                                                category.map((item: any, index: number) => {
-                                                    return (
-                                                        <option value={item.id} key={index}>{item.name}</option>
-                                                    )
-                                                })
-                                            }
-                                        </select>
-                                        <span className="absolute top-1/2 right-4 z-30 -translate-y-1/2">
-                                              <svg
-                                                  className="fill-current"
-                                                  width="24"
-                                                  height="24"
-                                                  viewBox="0 0 24 24"
-                                                  fill="none"
-                                                  xmlns="http://www.w3.org/2000/svg"
-                                              >
-                                                <g opacity="0.8">
-                                                  <path
-                                                      fillRule="evenodd"
-                                                      clipRule="evenodd"
-                                                      d="M5.29289 8.29289C5.68342 7.90237 6.31658 7.90237 6.70711 8.29289L12 13.5858L17.2929 8.29289C17.6834 7.90237 18.3166 7.90237 18.7071 8.29289C19.0976 8.68342 19.0976 9.31658 18.7071 9.70711L12.7071 15.7071C12.3166 16.0976 11.6834 16.0976 11.2929 15.7071L5.29289 9.70711C4.90237 9.31658 4.90237 8.68342 5.29289 8.29289Z"
-                                                      fill=""
-                                                  ></path>
-                                                </g>
-                                              </svg>
-                                            </span>
+                            <div className="mb-7 relative">
+                                <label className="mb-2.5 block font-medium text-black dark:text-white">
+                                    Choose Category <span className="text-meta-1">*</span>
+                                </label>
+                                <div className="relative z-20 bg-transparent dark:bg-form-input">
+                                    <div
+                                        className={`w-full flex flex-col border rounded bg-[#fafbfa] dark:bg-[#191821] mb-2 p-1.5 ${requiredCategory ? 'border-meta-1' : 'border-input dark:border-meta-4'}`}
+                                    >
+                                        {
+                                            category.map((item: any, index: number) => {
+                                                return item.status === true && (
+                                                    <>
+                                                        <div
+                                                            className={`relative pl-4 py-2 p-1 my-0.5 rounded-md bg-input dark:bg-gray-box ${item.subcategories.length > 0 ? 'cursor-pointer' : 'cursor-default'}`}
+                                                            key={index} onClick={() => handleCategory(item.id)}>
+                                                            <span className="text-orange-dark font-semibold">
+                                                                {item.name}
+                                                            </span>
+                                                            {
+                                                                item.subcategories.length > 0 &&
+                                                                <span
+                                                                    className={`absolute top-1/2 right-4 z-30 -translate-y-1/2 ${openId === item.id && showSubCategory ? 'transform rotate-180 transition duration-500' : 'transform rotate-0 transition duration-500'}`}
+                                                                >
+                                                                    <FaCaretDown className="fill-body" />
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                        {
+                                                            openId === item.id && showSubCategory && item.subcategories.length > 0 &&
+                                                            <div className="flex flex-col gap-1.5 pl-4">
+                                                                {
+                                                                    item.subcategories.map((sub: any, index: number) => {
+                                                                        return sub.status === true && (
+                                                                            <>
+                                                                                <div className="relative pl-6 p-0.5 my-0.5 rounded-md" key={index}>
+                                                                                    <label
+                                                                                        htmlFor={`checkbox-${sub.id}`}
+                                                                                        className="flex cursor-pointer select-none items-center"
+                                                                                    >
+                                                                                        <div className="relative">
+                                                                                            <input
+                                                                                                type="checkbox"
+                                                                                                id={`checkbox-${sub.id}`}
+                                                                                                className="sr-only"
+                                                                                                onChange={() => {
+                                                                                                    setGetId(sub.id)
+                                                                                                    setRequiredCategory(false)
+                                                                                                }}
+                                                                                            />
+                                                                                            <div
+                                                                                                className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${getId === sub.id && 'border-primary bg-gray dark:bg-transparent'
+                                                                                                    }`}
+                                                                                            >
+                                                                                                <span
+                                                                                                    className={`h-2.5 w-2.5 rounded-sm ${getId === sub.id && 'bg-primary'}`}
+                                                                                                ></span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <span className="text-success font-medium">
+                                                                                            {sub.name}
+                                                                                        </span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                {
+                                                                                    sub.subcategories.map((sub2: any, index: number) => {
+                                                                                        return sub2.status === true && (
+                                                                                            <>
+                                                                                                <div className="relative pl-8 p-0.5 my-0.5 rounded-md" key={index}>
+                                                                                                    <label
+                                                                                                        htmlFor={`checkbox-${sub2.id}`}
+                                                                                                        className="flex cursor-pointer select-none items-center"
+                                                                                                    >
+                                                                                                        <div className="relative">
+                                                                                                            <input
+                                                                                                                type="checkbox"
+                                                                                                                id={`checkbox-${sub2.id}`}
+                                                                                                                className="sr-only"
+                                                                                                                onChange={() => {
+                                                                                                                    setGetId(sub2.id)
+                                                                                                                    setRequiredCategory(false)
+                                                                                                                }}
+                                                                                                            />
+                                                                                                            <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded-full border ${getId === sub2.id && 'border-primary'
+                                                                                                                }`}
+                                                                                                            >
+                                                                                                                <span className={`h-2.5 w-2.5 rounded-full bg-transparent ${getId === sub2.id && '!bg-primary'
+                                                                                                                    }`}
+                                                                                                                >
+                                                                                                                    {' '}
+                                                                                                                </span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <span className="text-warning font-medium">
+                                                                                                            {sub2.name}
+                                                                                                        </span>
+                                                                                                    </label>
+                                                                                                </div>
+                                                                                                {
+                                                                                                    sub2.subcategories.map((sub3: any, index: number) => {
+                                                                                                        return sub3.status === true && (
+                                                                                                            <>
+                                                                                                                <div className="relative pl-10 p-0.5 my-0.5 rounded-md" key={index}>
+                                                                                                                    <label
+                                                                                                                        htmlFor={`checkbox-${sub3.id}`}
+                                                                                                                        className="flex cursor-pointer select-none items-center"
+                                                                                                                    >
+                                                                                                                        <div className="relative">
+                                                                                                                            <input
+                                                                                                                                type="checkbox"
+                                                                                                                                id={`checkbox-${sub3.id}`}
+                                                                                                                                className="sr-only"
+                                                                                                                                onChange={() => {
+                                                                                                                                    setGetId(sub3.id)
+                                                                                                                                    setRequiredCategory(false)
+                                                                                                                                }}
+                                                                                                                            />
+                                                                                                                            <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${getId === sub3.id && 'border-primary bg-gray dark:bg-transparent'
+                                                                                                                                }`} >
+                                                                                                                                <span className={`opacity-0 ${getId === sub3.id && '!opacity-100'}`}>
+                                                                                                                                    <FaCheck className="fill-primary" />
+                                                                                                                                </span>
+                                                                                                                            </div>
+                                                                                                                        </div>
+                                                                                                                        <span className="font-medium text-gray-box-2 dark:text-white">
+                                                                                                                            {sub3.name}
+                                                                                                                        </span>
+                                                                                                                    </label>
+                                                                                                                </div>
+                                                                                                            </>
+                                                                                                        )
+                                                                                                    }
+                                                                                                    )
+                                                                                                }
+                                                                                            </>
+                                                                                        )
+                                                                                    }
+                                                                                    )
+                                                                                }
+                                                                            </>
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </>
+                                                )
+                                            })
+                                        }
                                     </div>
                                 </div>
+                                {
+                                    requiredCategory && <span className="text-meta-1 text-sm absolute left-0 bottom-[-1.5rem]">Category is required</span>
+                                }
+                            </div>
+                            <div className="my-4.5">
+                                <label className="mb-2.5 block text-black dark:text-white">
+                                    Status
+                                </label>
+                                <div className="mt-3 w-14">
+                                    <label htmlFor="toggle1"
+                                        className="flex cursor-pointer select-none items-center"
+                                    >
+                                        <div className="relative">
+                                            <input
+                                                type="checkbox"
+                                                id="toggle1"
+                                                className="sr-only"
+                                                onChange={() => {
+                                                    setEnabled(!enabled);
+                                                }}
+                                            />
+                                            <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
+                                            <div
+                                                className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${enabled && '!right-1 !translate-x-full !bg-primary dark:!bg-white'
+                                                    }`}
+                                            ></div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="text-right flex justify-end items-end">
+                                <Link to="/content"
+                                    className="flex justify-center bg-transparent border border-meta-9 px-8 py-2 rounded-md font-medium text-black dark:text-white mr-3.5"
+                                >
+                                    Cancel
+                                </Link>
                                 <button
-                                    className="flex justify-center bg-primary px-8 py-2 rounded-xl font-medium text-gray"
+                                    className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray"
                                     onClick={handleSubmit}
                                 >
                                     Create
                                 </button>
+
                             </div>
                         </div>
-
                     </div>
+
                 </div>
-            </>
-        );
-    }
-;
+            </div>
+        </>
+    );
+}
+    ;
 
 export default CreateContent;

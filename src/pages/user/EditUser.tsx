@@ -13,7 +13,6 @@ interface MyComponentProps {
 
 function EditUser(props: MyComponentProps) {
     const { show, onCloseEditUser, dataForEditUser } = props;
-    console.log("this  EditUser  dataForEditUser:", dataForEditUser)
     const [userSelected, setUserSelected] = useState<any>({});
 
     const [requiredName, setRequiredName] = useState<boolean>(false);

@@ -356,15 +356,15 @@ export default function CreateCategory(props: MyComponentProps) {
                                                                     className="h-30 w-30 object-contain rounded-lg"
                                                                 />
                                                             ) : (
-                                                                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
+                                                                <span className="flex h-15 w-15 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
                                                                     <FaUpload />
                                                                 </span>
                                                             )
                                                         }
                                                         {
                                                             !previewURL &&
-                                                            <p>
-                                                                <span className="text-primary">Click to upload</span> or drag and drop image here
+                                                            <p className="py-3">
+                                                                <span className="text-primary">Click to upload </span> or drag and drop image *.png here
                                                             </p>
                                                         }
                                                     </div>

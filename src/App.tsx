@@ -46,14 +46,6 @@ function App() {
                         }
                     />
                     <Route
-                        path="/category/create"
-                        element={
-                            <Suspense fallback={<Loader/>}>
-                                <CreateCategory/>
-                            </Suspense>
-                        }
-                    />
-                    <Route
                         path="/content"
                         element={
                             <Suspense fallback={<Loader/>}>

@@ -51,7 +51,7 @@ module.exports = {
             'gray-box': '#222635',
             'white2': '#fafafa',
             'white3': '#f8f8f9',
-            'input': '#f5f6fa'
+            'input': '#f4f5fb'
         },
         screens: {
             '2xsm': '375px',

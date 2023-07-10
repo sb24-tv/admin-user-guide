@@ -49,13 +49,13 @@ const Content = () => {
                                     <th className="py-4 font-medium text-black dark:text-white xl:pl-11 rounded-tl-lg rounded-bl-lg">
                                         No
                                     </th>
-                                    <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                                    <th className="min-w-[300px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                         Title
                                     </th>
                                     <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                         Category
                                     </th>
-                                    <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+                                    <th className="min-w-[100px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
                                         User
                                     </th>
                                     <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
@@ -87,7 +87,7 @@ const Content = () => {
                                                         )
                                                     }
                                                 </td>
-                                                <td className="py-5 px-4 pl-9 max-w-[220px] dark:border-strokedark xl:pl-11">
+                                                <td className="py-5 px-4 pl-9 max-w-[300px] dark:border-strokedark xl:pl-11">
                                                     <h5 className="font-medium text-black dark:text-white">
                                                         {item.title}
                                                     </h5>
@@ -128,9 +128,10 @@ const Content = () => {
                                                 </td>
                                                 <td className="py-5 px-4 dark:border-strokedark">
                                                     <div className="flex items-center space-x-3.5">
-                                                        <button className="hover:text-primary">
+                                                        <Link to={`edit/${item.id}`}
+                                                            className="hover:text-primary">
                                                             <FaRegPenToSquare />
-                                                        </button>
+                                                        </Link>
                                                     </div>
                                                 </td>
                                             </tr>

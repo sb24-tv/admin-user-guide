@@ -346,3 +346,29 @@ export enum StatusCodes {
    */
   NETWORK_AUTHENTICATION_REQUIRED = 511
 }
+
+interface ICategory {
+  id: number;
+  data: any;
+  position: number[];
+}
+
+export function searchDataById(id: number, data: any[], position: number[] = []): ICategory | null {
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    
+    if (item.id === id) {
+      return { id: item.id, data: item, position };
+    }
+    
+    if (item.subcategories && item.subcategories.length > 0) {
+      const subcategoryIndices = [...position, i]; // Add the current index to the indices array
+      const subcategoryResult = searchDataById(id, item.subcategories, subcategoryIndices);
+      if (subcategoryResult) {
+        return subcategoryResult;
+      }
+    }
+  }
+  
+  return null;
+}

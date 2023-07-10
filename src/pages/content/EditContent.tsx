@@ -1,34 +1,37 @@
 import React, { useEffect, useRef, useState } from "react";
 import APIService from "../../service/APIService.ts";
-import { Link, useNavigate } from "react-router-dom";
-import { StatusCodes } from '../../enum/index.ts';
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { StatusCodes, searchDataById } from '../../enum/index.ts';
 import { toast } from 'react-toastify';
 import { FaCaretDown, FaCheck } from "react-icons/fa6";
 import ReactQuill from "react-quill";
 import EditorToolbar, { modules, formats } from "../../components/EditorToolbar.tsx";
 import 'react-quill/dist/quill.snow.css';
 
-
-const CreateContent = () => {
-    // const editorRef = useRef(null);
+const EditContent = () => {
     const titleRef = useRef<any>(null);
     const bodyRef = useRef<any>(null);
     const [requiredTitle, setRequiredTitle] = useState<boolean>(false);
     const [requiredCategory, setRequiredCategory] = useState<boolean>(false);
     const [requiredBody, setRequiredBody] = useState<boolean>(false);
     const [enabled, setEnabled] = useState<boolean>(true);
-    const [showSubCategory, setSubCategory] = useState<boolean>(false);
+    const [showSubCategory, setSubCategory] = useState<boolean>(true);
     const [openId, setOpenId] = useState<number>(0);
     const [getId, setGetId] = useState<number>(0);
+    const [contentById, setContentById] = useState<any>([]);
+
     const navigate = useNavigate();
+    let { id } = useParams();
 
-    const [category, setCategory] = useState([]);
-
+    const [category, setCategory] = useState<any>([]);
     const [editorHtml, setEditorHtml] = useState<string>("");
 
+
     const handleChange = (html: string) => {
-        setRequiredBody(false);
-        setEditorHtml(html);
+        if (id) {
+            setRequiredBody(false);
+            setEditorHtml(html);
+        }
     };
 
     const notify = () => {
@@ -44,14 +47,24 @@ const CreateContent = () => {
         });
     };
 
-
     useEffect(() => {
         APIService.get(`subcat`).then((response: any) => {
             if (response.status === StatusCodes.OK) {
                 setCategory(response.data.data);
             }
         });
+
+        APIService.get(`content/${id}`).then((response: any) => {
+            if (response.status === StatusCodes.OK) {
+                setContentById(response.data);
+            }
+        });
     }, []);
+    
+    const getParentId = contentById.category ? searchDataById(contentById.category.id, category) : null;
+    const categoryId = getParentId ? category[getParentId.position[0]].id : null;
+
+
 
     const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
 
@@ -59,6 +72,7 @@ const CreateContent = () => {
         const title = titleRef.current?.value;
         const category = getId !== 0 && getId;
         const body = bodyRef.current?.value;
+        console.log("this  handleSubmit  body:", body)
         if (!title || !category || !body) {
             if (!title) setRequiredTitle(true);
             if (!category) setRequiredCategory(true);
@@ -73,7 +87,7 @@ const CreateContent = () => {
             userId: userId
 
         };
-        APIService.post(`content`, data).then((response: any) => {
+        APIService.put(`content/${id}`, data).then((response: any) => {
             if (response.status === StatusCodes.CREATED) {
                 notify();
                 navigate('/content');
@@ -93,7 +107,7 @@ const CreateContent = () => {
             setGetId(0);
         }
         if (openId !== id) {
-            setSubCategory(true);
+            setSubCategory(false);
             setOpenId(id);
             setGetId(0);
         }
@@ -102,7 +116,7 @@ const CreateContent = () => {
         <>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-title-md2 font-semibold text-black dark:text-white">
-                    Create Content
+                    Edit Content
                 </h2>
             </div>
             <div className="flex justify-between gap-5">
@@ -120,6 +134,7 @@ const CreateContent = () => {
                                         placeholder="Title"
                                         name="title"
                                         ref={titleRef}
+                                        defaultValue={contentById?.title}
                                         onChange={() => setRequiredTitle(false)}
                                         className={`w-full rounded-md border bg-input py-3 px-5 font-medium outline-none transition disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input ${requiredTitle ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
                                     />
@@ -137,7 +152,7 @@ const CreateContent = () => {
                                         theme="snow"
                                         ref={bodyRef}
                                         onChange={handleChange}
-                                        value={editorHtml}
+                                        value={contentById?.body || editorHtml}
                                         className="bg-input dark:bg-form-input custom-quill min-h-[40vh] border-meta-1"
                                         placeholder={"Write something awesome..."}
                                         modules={modules}
@@ -179,14 +194,14 @@ const CreateContent = () => {
                                                             {
                                                                 item.subcategories.length > 0 &&
                                                                 <span
-                                                                    className={`absolute top-1/2 right-4 z-30 -translate-y-1/2 ${openId === item.id && showSubCategory ? 'transform rotate-180 transition duration-500' : 'transform rotate-0 transition duration-500'}`}
+                                                                    className={`absolute top-1/2 right-4 z-30 -translate-y-1/2 ${categoryId === item.id && showSubCategory ? 'transform rotate-180 transition duration-500' : 'transform rotate-0 transition duration-500'}`}
                                                                 >
                                                                     <FaCaretDown className="fill-body" />
                                                                 </span>
                                                             }
                                                         </div>
                                                         {
-                                                            openId === item.id && showSubCategory && item.subcategories.length > 0 &&
+                                                            categoryId === item.id && item.subcategories.length > 0 &&
                                                             <div className="flex flex-col gap-1.5 pl-4">
                                                                 {
                                                                     item.subcategories.map((sub: any, index: number) => {
@@ -346,7 +361,7 @@ const CreateContent = () => {
                                     className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray"
                                     onClick={handleSubmit}
                                 >
-                                    Create
+                                    Update
                                 </button>
 
                             </div>
@@ -360,4 +375,4 @@ const CreateContent = () => {
 }
     ;
 
-export default CreateContent;
+export default EditContent;

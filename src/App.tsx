@@ -18,9 +18,9 @@ const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 const Category = lazy(() => import('./pages/category/Category'));
 const Content = lazy(() => import('./pages/content/Content'));
 const CreateContent = lazy(() => import('./pages/content/CreateContent'));
+const EditContent = lazy(() => import('./pages/content/EditContent'));
 const User = lazy(() => import('./pages/user/User'));
 const Loader = lazy(() =>  import('./common/Loader') );
-const CreateCategory = lazy(() => import('./pages/category/CreateCategory'));
 
 function App() {
     const [isLogin] = useMiddleware();
@@ -58,6 +58,14 @@ function App() {
                         element={
                             <Suspense fallback={<Loader/>}>
                                 <CreateContent/>
+                            </Suspense>
+                        }
+                    />
+                    <Route
+                        path="/content/edit/:id"
+                        element={
+                            <Suspense fallback={<Loader/>}>
+                                <EditContent/>
                             </Suspense>
                         }
                     />

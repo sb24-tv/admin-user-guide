@@ -43,6 +43,18 @@ const CreateContent = () => {
             theme: "light",
         });
     };
+    const notifyError = () => {
+        toast.error('Something went wrong', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
 
 
     useEffect(() => {
@@ -83,6 +95,9 @@ const CreateContent = () => {
                 setOpenId(0);
                 setGetId(0);
             }
+        }
+        ).catch((error: any) => {
+            notifyError();
         }
         );
     }

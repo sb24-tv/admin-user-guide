@@ -38,6 +38,19 @@ function EditUser(props: MyComponentProps) {
             theme: "light",
             });
     };
+    const notifyError = () => {
+        toast.error('Something went wrong', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
+
     const handleSubmitEdit = async () => {
         const name = nameRef.current?.value;
         const username = usernameRef.current?.value;
@@ -62,7 +75,10 @@ function EditUser(props: MyComponentProps) {
                 setUsernameExist(true);
                 setMessage(response.data.message);
             }
-        })
+        }).catch((error: any) => {
+            notifyError();
+        }
+        )
     }
     const handleClose = () => {
         onCloseEditUser();

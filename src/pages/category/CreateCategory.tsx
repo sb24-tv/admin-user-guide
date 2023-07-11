@@ -57,6 +57,18 @@ export default function CreateCategory(props: MyComponentProps) {
             theme: "light",
         });
     };
+    const notifyError = () => {
+        toast.error('Something went wrong', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
 
     const [selectFile, setSelectedFile] = useState<File | null>(null);
     const [previewURL, setPreviewURL] = useState<string | null>(null);
@@ -118,7 +130,9 @@ export default function CreateCategory(props: MyComponentProps) {
                     setShowMessageAvailable(false);
                 }
             }
-            );
+            ).catch((error: any) => {
+                notifyError();
+            });
         } else {
             const data = {
                 name: nameRef.current?.value,
@@ -139,6 +153,9 @@ export default function CreateCategory(props: MyComponentProps) {
                     setShowMessageExist(false);
                     setShowMessageAvailable(false);
                 }
+            }
+            ).catch((error: any) => {
+                notifyError();
             }
             );
         }

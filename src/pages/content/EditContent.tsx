@@ -14,11 +14,10 @@ const EditContent = () => {
     const [requiredTitle, setRequiredTitle] = useState<boolean>(false);
     const [requiredCategory, setRequiredCategory] = useState<boolean>(false);
     const [requiredBody, setRequiredBody] = useState<boolean>(false);
-    const [enabled, setEnabled] = useState<boolean>(true);
-    const [showSubCategory, setSubCategory] = useState<boolean>(true);
     const [openId, setOpenId] = useState<number>(0);
-    const [getId, setGetId] = useState<number>(0);
     const [contentById, setContentById] = useState<any>([]);
+    const [contentSelected, setContentSelected] = useState<any>([]);
+    const [categorySelected, setCategorySelected] = useState<any>([]);
 
     const navigate = useNavigate();
     let { id } = useParams();
@@ -35,7 +34,19 @@ const EditContent = () => {
     };
 
     const notify = () => {
-        toast.success('Content created successfully', {
+        toast.success('Content updated successfully', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
+    const notifyError = () => {
+        toast.error('Something went wrong', {
             position: "bottom-left",
             autoClose: 5000,
             hideProgressBar: false,
@@ -60,58 +71,95 @@ const EditContent = () => {
             }
         });
     }, []);
-    
-    const getParentId = contentById.category ? searchDataById(contentById.category.id, category) : null;
+
+    const getParentId = contentById.category ? searchDataById(contentById?.category?.id, category) : null;
     const categoryId = getParentId ? category[getParentId.position[0]].id : null;
-
-
 
     const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
 
     const handleSubmit = async () => {
         const title = titleRef.current?.value;
-        const category = getId !== 0 && getId;
         const body = bodyRef.current?.value;
-        console.log("this  handleSubmit  body:", body)
-        if (!title || !category || !body) {
+        const allowPublic = contentSelected?.allowPublic;
+        if (!title || !body || categorySelected === 0) {
             if (!title) setRequiredTitle(true);
-            if (!category) setRequiredCategory(true);
+            if (categorySelected === 0) setRequiredCategory(true);
             if (!body) setRequiredBody(true);
             return;
         }
         const data = {
             title: titleRef.current?.value,
-            categoryId: getId as number,
-            body: bodyRef.current?.value,
-            allowPublic: enabled ? 1 : 0,
+            categoryId: categorySelected as number,
+            body: body,
+            allowPublic: allowPublic,
             userId: userId
-
         };
         APIService.put(`content/${id}`, data).then((response: any) => {
-            if (response.status === StatusCodes.CREATED) {
+            if (response.status === StatusCodes.OK) {
                 notify();
                 navigate('/content');
                 setRequiredTitle(false);
                 setRequiredCategory(false);
-                setEnabled(true);
                 setOpenId(0);
-                setGetId(0);
             }
+        }
+        ).catch((error: any) => {
+            notifyError();
         }
         );
     }
     const handleCategory = (id: number) => {
-        if (openId === id) {
-            setSubCategory(!showSubCategory);
-            setOpenId(id);
-            setGetId(0);
-        }
-        if (openId !== id) {
-            setSubCategory(false);
-            setOpenId(id);
-            setGetId(0);
-        }
+        setOpenId(() => id === openId ? 0 : id);
+        // setCategorySelected(0);
     }
+    useEffect(() => {
+        setContentSelected(contentById);
+        setOpenId(categoryId)
+        setCategorySelected(contentById?.category?.id);
+    }, [contentById]);
+
+    const onClickSelectCategory = (id: number) => {
+        setRequiredCategory(false);
+        setCategorySelected(id);
+    }
+
+    // -------------------------
+    const quillRef = useRef<ReactQuill>(null);
+    const [content, setContent] = useState('');
+    const [selectFile, setSelectedFile] = useState<File | null>(null);
+
+    const handleChangeImage = (value: string) => {
+        setContent(value);
+    };
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files && event.target.files[0];
+        console.log("this  handleImageUpload  file:", file)
+        setSelectedFile(file);
+        if (selectFile) {
+            const data = new FormData();
+            data.append('details', selectFile);
+            // data.append('photo', file);
+
+            // Make the API request to upload the image
+            APIService.uploadImageContent('photo', data).then((response: any) => {
+
+                console.log("this  .then  data:", response)
+                    // // Assuming the API returns the uploaded image URL
+                    // const imageUrl = response.data.url;
+                    // console.log("this  .then  imageUrl:", imageUrl)
+
+                    // // Get the current cursor position in the editor
+                    // const range = quillRef.current?.getEditor().getSelection()?.index || 0;
+
+                    // // Insert the image at the current cursor position
+                    // quillRef.current?.getEditor().insertEmbed(range, 'image', imageUrl);
+                })
+                .catch((error) => {
+                    console.error('Error uploading image:', error);
+                });
+        };
+    }
+
     return (
         <>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -148,11 +196,22 @@ const EditContent = () => {
                                         Content Detail <span className="text-meta-1">*</span>
                                     </label>
                                     <EditorToolbar />
-                                    <ReactQuill
+                                    <input type="file" accept="image/*" onChange={handleImageUpload} />
+                                    {/* <ReactQuill
                                         theme="snow"
                                         ref={bodyRef}
                                         onChange={handleChange}
-                                        value={contentById?.body || editorHtml}
+                                        value={editorHtml || contentById?.body}
+                                        className="bg-input dark:bg-form-input custom-quill min-h-[40vh] border-meta-1"
+                                        placeholder={"Write something awesome..."}
+                                        modules={modules}
+                                        formats={formats}
+                                    /> */}
+                                    <ReactQuill
+                                        theme="snow"
+                                        value={content}
+                                        onChange={handleChangeImage}
+                                        ref={quillRef}
                                         className="bg-input dark:bg-form-input custom-quill min-h-[40vh] border-meta-1"
                                         placeholder={"Write something awesome..."}
                                         modules={modules}
@@ -187,21 +246,24 @@ const EditContent = () => {
                                                     <React.Fragment key={index}>
                                                         <div
                                                             className={`relative pl-4 py-2 p-1 my-0.5 rounded-md bg-[#f4f5f6] dark:bg-gray-box ${item.subcategories.length > 0 ? 'cursor-pointer' : 'cursor-default'}`}
-                                                            onClick={() => handleCategory(item.id)}>
+                                                            onClick={() => {
+                                                                handleCategory(item.id);
+                                                            }}
+                                                        >
                                                             <span className="text-orange-dark font-semibold">
                                                                 {item.name}
                                                             </span>
                                                             {
                                                                 item.subcategories.length > 0 &&
                                                                 <span
-                                                                    className={`absolute top-1/2 right-4 z-30 -translate-y-1/2 ${categoryId === item.id && showSubCategory ? 'transform rotate-180 transition duration-500' : 'transform rotate-0 transition duration-500'}`}
+                                                                    className={`absolute top-1/2 right-4 z-30 -translate-y-1/2 ${openId === item.id ? 'transform rotate-180 transition duration-500' : 'transform rotate-0 transition duration-500'}`}
                                                                 >
                                                                     <FaCaretDown className="fill-body" />
                                                                 </span>
                                                             }
                                                         </div>
                                                         {
-                                                            categoryId === item.id && item.subcategories.length > 0 &&
+                                                            openId === item.id && item.subcategories.length > 0 &&
                                                             <div className="flex flex-col gap-1.5 pl-4">
                                                                 {
                                                                     item.subcategories.map((sub: any, index: number) => {
@@ -218,16 +280,15 @@ const EditContent = () => {
                                                                                                 id={`checkbox-${sub.id}`}
                                                                                                 className="sr-only"
                                                                                                 onChange={() => {
-                                                                                                    setGetId(sub.id)
-                                                                                                    setRequiredCategory(false)
+                                                                                                    onClickSelectCategory(sub.id);
                                                                                                 }}
                                                                                             />
                                                                                             <div
-                                                                                                className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${getId === sub.id && 'border-primary bg-gray dark:bg-transparent'
+                                                                                                className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${categorySelected === sub.id && 'border-primary bg-gray dark:bg-transparent'
                                                                                                     }`}
                                                                                             >
                                                                                                 <span
-                                                                                                    className={`h-2.5 w-2.5 rounded-sm ${getId === sub.id && 'bg-primary'}`}
+                                                                                                    className={`h-2.5 w-2.5 rounded-sm ${categorySelected === sub.id && 'bg-primary'}`}
                                                                                                 ></span>
                                                                                             </div>
                                                                                         </div>
@@ -251,14 +312,13 @@ const EditContent = () => {
                                                                                                                 id={`checkbox-${sub2.id}`}
                                                                                                                 className="sr-only"
                                                                                                                 onChange={() => {
-                                                                                                                    setGetId(sub2.id)
-                                                                                                                    setRequiredCategory(false)
+                                                                                                                    onClickSelectCategory(sub2.id)
                                                                                                                 }}
                                                                                                             />
-                                                                                                            <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded-full border ${getId === sub2.id && 'border-primary'
+                                                                                                            <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded-full border ${categorySelected === sub2.id && 'border-primary'
                                                                                                                 }`}
                                                                                                             >
-                                                                                                                <span className={`h-2.5 w-2.5 rounded-full bg-transparent ${getId === sub2.id && '!bg-primary'
+                                                                                                                <span className={`h-2.5 w-2.5 rounded-full bg-transparent ${categorySelected === sub2.id && '!bg-primary'
                                                                                                                     }`}
                                                                                                                 >
                                                                                                                     {' '}
@@ -284,13 +344,12 @@ const EditContent = () => {
                                                                                                                             id={`checkbox-${sub3.id}`}
                                                                                                                             className="sr-only"
                                                                                                                             onChange={() => {
-                                                                                                                                setGetId(sub3.id)
-                                                                                                                                setRequiredCategory(false)
+                                                                                                                                onClickSelectCategory(sub3.id);
                                                                                                                             }}
                                                                                                                         />
-                                                                                                                        <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${getId === sub3.id && 'border-primary bg-gray dark:bg-transparent'
+                                                                                                                        <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${categorySelected === sub3.id && 'border-primary bg-gray dark:bg-transparent'
                                                                                                                             }`} >
-                                                                                                                            <span className={`opacity-0 ${getId === sub3.id && '!opacity-100'}`}>
+                                                                                                                            <span className={`opacity-0 ${categorySelected === sub3.id && '!opacity-100'}`}>
                                                                                                                                 <FaCheck className="fill-primary" />
                                                                                                                             </span>
                                                                                                                         </div>
@@ -339,12 +398,15 @@ const EditContent = () => {
                                                 id="toggle1"
                                                 className="sr-only"
                                                 onChange={() => {
-                                                    setEnabled(!enabled);
+                                                    setContentSelected({
+                                                        ...contentSelected,
+                                                        allowPublic: contentSelected?.allowPublic === true ? false : true
+                                                    })
                                                 }}
                                             />
                                             <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
                                             <div
-                                                className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${enabled && '!right-1 !translate-x-full !bg-primary dark:!bg-white'
+                                                className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${contentSelected.allowPublic === false ? '' : '!right-1 !translate-x-full !bg-primary dark:!bg-white'
                                                     }`}
                                             ></div>
                                         </div>

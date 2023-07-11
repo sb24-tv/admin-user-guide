@@ -1,9 +1,8 @@
 import { Fragment, useState, useRef, useEffect } from "react";
 import APIService from "../../service/APIService.ts";
-import { FaUpload } from "react-icons/fa6";
 import { Dialog, Transition } from '@headlessui/react'
 import { useSearchParams } from "react-router-dom";
-import { StatusCodes } from "../../enum/index.ts";
+import { StatusCodes } from "../../enum";
 import { toast } from 'react-toastify';
 import { FaCircleCheck, FaCircleExclamation } from "react-icons/fa6";
 import NoImage from "../../images/logo/black-and-white.png"
@@ -47,6 +46,18 @@ export default function EditCategory(props: MyComponentProps) {
 
     const notify = () => {
         toast.success('Category updated successfully', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
+    const notifyError = () => {
+        toast.error('Something went wrong', {
             position: "bottom-left",
             autoClose: 5000,
             hideProgressBar: false,
@@ -138,6 +149,9 @@ export default function EditCategory(props: MyComponentProps) {
                     setMessageSlugAvailable('');
                     setMessageSlugExist('');
                 }
+            }
+            ).catch((error) => {
+                notifyError();
             }
             );
         }

@@ -73,7 +73,7 @@ const Content = () => {
                                 {
                                     content.length > 0 ?
                                         content.map((item: any, index: number) => (
-                                            <tr key={index} className="border-b border-[#eee] last:border-b-0">
+                                            <tr key={index} className="border-b border-[#eee] dark:border-graydark last:border-b-0">
                                                 <td className="py-5 pl-9 dark:border-strokedark xl:pl-11">
                                                     {
                                                         pages.current_page === 1 ? (
@@ -99,7 +99,7 @@ const Content = () => {
                                                 </td>
                                                 <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
                                                     <span className="font-semibold dark:text-white capitalize">
-                                                        {item.user.name}
+                                                        {item.user ? item.user.name : "N/A"}
                                                     </span>
                                                 </td>
                                                 <td className="py-5 px-4 dark:border-strokedark">

@@ -50,6 +50,18 @@ function ChangePassword(props: MyComponentProps) {
             theme: "light",
         });
     };
+    const notifyError = () => {
+        toast.error('Something went wrong', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
     const handleCheckPasswordMatch = () => {
         const newPassword = newPasswordRef.current.value;
         const confirmPassword = confirmPasswordRef.current.value;
@@ -102,7 +114,10 @@ function ChangePassword(props: MyComponentProps) {
                 setInvalidPassword(true);
                 setMessage(response.data.message);
             }
-        })
+        }).catch((error: any) => {
+            notifyError();
+        }
+        );
     }
 
     return (

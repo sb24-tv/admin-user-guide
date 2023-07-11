@@ -1,10 +1,6 @@
 import React from "react";
 import { Quill } from "react-quill";
 
-
-// Undo and redo functions for Custom Toolbar
-
-// Add sizes to whitelist and register them
 const Size = Quill.import("formats/size");
 Size.whitelist = ["extra-small", "small", "medium", "large"];
 Quill.register(Size, true);
@@ -53,7 +49,7 @@ export const formats = [
     "bullet",
     "indent",
     "link",
-    "image",
+    // "image",
     "video",
     "color",
     "code-block"
@@ -92,7 +88,7 @@ export const QuillToolbar: React.FC = () => (
         </span>
         <span className="ql-formats">
             <button className="ql-link" />
-            <button className="ql-image" />
+            {/* <button className="ql-image" /> */}
             <button className="ql-video" />
         </span>
     </div>

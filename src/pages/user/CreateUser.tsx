@@ -37,6 +37,18 @@ function CreateUser(props: MyComponentProps) {
             theme: "light",
             });
     };
+    const notifyError = () => {
+        toast.error('Something went wrong', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
     const handleSubmit = async () => {
         const name = nameRef.current?.value;
         const username = usernameRef.current?.value;
@@ -63,7 +75,10 @@ function CreateUser(props: MyComponentProps) {
                 setUsernameExist(true);
                 setUsernameExistMessage(response.data.message);
             }
-        });
+        }).catch((error: any) => {
+            notifyError();
+        }
+        );
     }
     const handleClose = () => {
         onCloseCreateUser();

@@ -3,7 +3,7 @@ import APIService from "../../service/APIService.ts";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { StatusCodes, searchDataById } from '../../enum/index.ts';
 import { toast } from 'react-toastify';
-import { FaCaretDown, FaCheck } from "react-icons/fa6";
+import { FaCaretDown, FaCheck, FaRegImages } from "react-icons/fa6";
 import ReactQuill from "react-quill";
 import EditorToolbar, { modules, formats } from "../../components/EditorToolbar.tsx";
 import 'react-quill/dist/quill.snow.css';
@@ -124,42 +124,34 @@ const EditContent = () => {
     }
 
     // -------------------------
-    const quillRef = useRef<ReactQuill>(null);
-    const [content, setContent] = useState('');
+
+    const imageRef = useRef<any>(null);
     const [selectFile, setSelectedFile] = useState<File | null>(null);
-
-    const handleChangeImage = (value: string) => {
-        setContent(value);
-    };
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("this  EditContent  selectFile:", selectFile)
+    const handleFileChange = (event: any) => {
         const file = event.target.files && event.target.files[0];
-        console.log("this  handleImageUpload  file:", file)
-        setSelectedFile(file);
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
+    const submitImage = async () => {
         if (selectFile) {
-            const data = new FormData();
-            data.append('details', selectFile);
-            // data.append('photo', file);
-
-            // Make the API request to upload the image
-            APIService.uploadImageContent('photo', data).then((response: any) => {
-
-                console.log("this  .then  data:", response)
-                    // // Assuming the API returns the uploaded image URL
-                    // const imageUrl = response.data.url;
-                    // console.log("this  .then  imageUrl:", imageUrl)
-
-                    // // Get the current cursor position in the editor
-                    // const range = quillRef.current?.getEditor().getSelection()?.index || 0;
-
-                    // // Insert the image at the current cursor position
-                    // quillRef.current?.getEditor().insertEmbed(range, 'image', imageUrl);
-                })
-                .catch((error) => {
-                    console.error('Error uploading image:', error);
-                });
-        };
+            const formData = new FormData();
+            formData.append("details", selectFile);
+            APIService.insertFormData('photo', formData).then((response: any) => {
+                if (response.status === StatusCodes.CREATED) {
+                    const image = response.data.data;
+                    const html = `<img src="${image}" alt="image" />`;
+                    setEditorHtml(editorHtml + html);
+                    setSelectedFile(null);
+                }
+            }
+            ).catch(() => {
+                notifyError();
+            }
+            );
+        }
     }
-
     return (
         <>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -195,9 +187,29 @@ const EditContent = () => {
                                     <label className="mb-2.5 block font-medium text-black dark:text-white">
                                         Content Detail <span className="text-meta-1">*</span>
                                     </label>
+                                    {/* <input
+                                        type="file"
+                                        accept="image/*"
+                                        ref={imageRef}
+                                        className=""
+                                        onChange={handleFileChange}
+                                    /> */}
+                                    <div className="flex items-center justify-center">
+                                        <label className=" flex flex-col items-center px-4 ">
+                                            
+                                            <span className="mt-2 text-base leading-normal">Select a file</span>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                ref={imageRef}
+                                                className="hidden"
+                                                onChange={handleFileChange}
+                                            />
+                                        </label>
+                                    </div>
+                                    <button onClick={submitImage} className="bg-primary text-white">Submit</button>
                                     <EditorToolbar />
-                                    <input type="file" accept="image/*" onChange={handleImageUpload} />
-                                    {/* <ReactQuill
+                                    <ReactQuill
                                         theme="snow"
                                         ref={bodyRef}
                                         onChange={handleChange}
@@ -206,8 +218,8 @@ const EditContent = () => {
                                         placeholder={"Write something awesome..."}
                                         modules={modules}
                                         formats={formats}
-                                    /> */}
-                                    <ReactQuill
+                                    />
+                                    {/* <ReactQuill
                                         theme="snow"
                                         value={content}
                                         onChange={handleChangeImage}
@@ -216,7 +228,7 @@ const EditContent = () => {
                                         placeholder={"Write something awesome..."}
                                         modules={modules}
                                         formats={formats}
-                                    />
+                                    /> */}
                                     {
                                         requiredBody && <span className="text-meta-1 text-sm absolute left-0 -bottom-8">Content is required</span>
                                     }

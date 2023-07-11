@@ -133,27 +133,5 @@ class APIService {
 			// console.error("API Request Error:", error);
 		}
 	}
-	public async uploadImageContent<T>(endpoint: string, data: FormData): Promise<T | any> {
-		const url = `${this.baseUrl}/api/${endpoint}`;
-		const options: IRequestInit = {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${this.token}`,
-			},
-			body: data
-		};
-		try {
-			const response = await fetch(url, options);
-			if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
-				throw new Error(`Request failed with status ${response.status}`);
-			}
-			return {
-				data: await response.json(),
-				status: response.status
-			}
-		} catch (error: any) {
-			// console.error("API Request Error:", error);
-		}
-	}
 }
 export default APIService.getInstance();

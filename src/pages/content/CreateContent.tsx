@@ -1,18 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import APIService from "../../service/APIService.ts";
 import { Link, useNavigate } from "react-router-dom";
-import { StatusCodes } from '../../enum/index.ts';
+import { StatusCodes } from '../../enum';
 import { toast } from 'react-toastify';
 import { FaCaretDown, FaCheck } from "react-icons/fa6";
-import ReactQuill from "react-quill";
-import EditorToolbar, { modules, formats } from "../../components/EditorToolbar.tsx";
 import 'react-quill/dist/quill.snow.css';
-
+import MyEditor from "./MyEditor.tsx";
 
 const CreateContent = () => {
     // const editorRef = useRef(null);
     const titleRef = useRef<any>(null);
-    const bodyRef = useRef<any>(null);
     const [requiredTitle, setRequiredTitle] = useState<boolean>(false);
     const [requiredCategory, setRequiredCategory] = useState<boolean>(false);
     const [requiredBody, setRequiredBody] = useState<boolean>(false);
@@ -70,17 +67,16 @@ const CreateContent = () => {
     const handleSubmit = async () => {
         const title = titleRef.current?.value;
         const category = getId !== 0 && getId;
-        const body = bodyRef.current?.value;
-        if (!title || !category || !body) {
+        const body = editorHtml;
+        if (!title || !category) {
             if (!title) setRequiredTitle(true);
             if (!category) setRequiredCategory(true);
-            if (!body) setRequiredBody(true);
             return;
         }
         const data = {
             title: titleRef.current?.value,
             categoryId: getId as number,
-            body: bodyRef.current?.value,
+            body: body,
             allowPublic: enabled ? 1 : 0,
             userId: userId
 
@@ -96,7 +92,7 @@ const CreateContent = () => {
                 setGetId(0);
             }
         }
-        ).catch((error: any) => {
+        ).catch(() => {
             notifyError();
         }
         );
@@ -136,7 +132,7 @@ const CreateContent = () => {
                                         name="title"
                                         ref={titleRef}
                                         onChange={() => setRequiredTitle(false)}
-                                        className={`w-full rounded-md border bg-input py-3 px-5 font-medium outline-none transition disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input ${requiredTitle ? 'border-meta-1 focus:border-meta-1' : 'border-input'}`}
+                                        className={`w-full rounded-md border bg-input py-3 px-5 font-medium outline-none transition disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input ${requiredTitle ? 'border-meta-1 focus:border-meta-1 dark:border-meta-1' : 'border-input'}`}
                                     />
                                     {
                                         requiredTitle && <span className="text-meta-1 text-sm absolute left-0 -bottom-7">Title is required</span>
@@ -147,16 +143,12 @@ const CreateContent = () => {
                                     <label className="mb-2.5 block font-medium text-black dark:text-white">
                                         Content Detail <span className="text-meta-1">*</span>
                                     </label>
-                                    <EditorToolbar />
-                                    <ReactQuill
+                                    <MyEditor
                                         theme="snow"
-                                        ref={bodyRef}
                                         onChange={handleChange}
                                         value={editorHtml}
-                                        className="bg-input dark:bg-form-input custom-quill min-h-[40vh] border-meta-1"
+                                        className="bg-input dark:bg-form-input custom-quill min-h-[40vh]"
                                         placeholder={"Write something awesome..."}
-                                        modules={modules}
-                                        formats={formats}
                                     />
                                     {
                                         requiredBody && <span className="text-meta-1 text-sm absolute left-0 -bottom-8">Content is required</span>
@@ -179,7 +171,7 @@ const CreateContent = () => {
                                 </label>
                                 <div className="relative z-20 bg-transparent">
                                     <div
-                                        className={`w-full flex flex-col border rounded mb-2 p-1.5 ${requiredCategory ? 'border-meta-1' : 'border-input dark:border-meta-4'}`}
+                                        className={`w-full flex flex-col border rounded mb-2 p-1.5 ${requiredCategory ? 'border-meta-1 dark:border-meta-1' : 'border-input dark:border-meta-4'}`}
                                     >
                                         {
                                             category.map((item: any, index: number) => {

@@ -258,7 +258,7 @@ export default function EditCategory(props: MyComponentProps) {
                                                 ref={nameRef}
                                                 defaultValue={dataForEditCategory?.name}
                                                 onChange={handleNameChange}
-                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredName ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredName ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                             />
                                             {
                                                 requiredName && (

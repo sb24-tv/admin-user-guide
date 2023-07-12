@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaKey } from "react-icons/fa6";
 import ChangePassword from '../pages/user/ChangePassword';
+import APIService from '../service/APIService';
+import { StatusCodes } from '../enum';
 
 
 const DropdownUser = () => {
@@ -32,7 +34,7 @@ const DropdownUser = () => {
     };
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
-  });
+  },[]);
 
   // close if the esc key is pressed
   useEffect(() => {
@@ -43,11 +45,20 @@ const DropdownUser = () => {
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
-  const handleLogout = () => {
-    // Clear session from local storage
-    localStorage.removeItem('user');
-    window.location.href = '/login';
-  };
+  
+  const handleLogout = async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const id = user.id;
+    APIService.post('users/logout', { id })
+      .then((res: any) => {
+        if (res.status === StatusCodes.OK) {
+          localStorage.removeItem('user');
+          window.location.href = '/';
+        }
+      }
+      )
+  }
+
   return (
     <>
       <ChangePassword show={isOpenChangePassword} onCloseChangePass={() => setIsOpenChangePassword(false)} dataForPassword={userEdit} />
@@ -60,7 +71,7 @@ const DropdownUser = () => {
         >
           <span className="hidden text-right lg:block p-2">
             <span className="block text-sm font-medium text-black dark:text-white capitalize">
-              {JSON.parse(localStorage.getItem('user') || '{}').username}
+              {JSON.parse(localStorage.getItem('user') || '{}').name}
             </span>
           </span>
 

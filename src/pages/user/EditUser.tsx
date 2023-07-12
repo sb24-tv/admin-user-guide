@@ -25,7 +25,7 @@ function EditUser(props: MyComponentProps) {
     useEffect(() => {
         setUserSelected(dataForEditUser);
     }, [dataForEditUser]);
-    
+
     const notify = () => {
         toast.success('User updated successfully!', {
             position: "bottom-left",
@@ -36,7 +36,7 @@ function EditUser(props: MyComponentProps) {
             draggable: true,
             progress: undefined,
             theme: "light",
-            });
+        });
     };
     const notifyError = () => {
         toast.error('Something went wrong', {
@@ -88,6 +88,8 @@ function EditUser(props: MyComponentProps) {
         setUsernameExist(false);
         setMessage("");
     }
+    const userLogin = JSON.parse(localStorage.getItem("user") || "{}");
+    const idUserLogin = userLogin?.id;
 
     return (
         <Transition appear show={show} as={Fragment}>
@@ -133,7 +135,7 @@ function EditUser(props: MyComponentProps) {
                                                 ref={nameRef}
                                                 defaultValue={dataForEditUser?.name}
                                                 onChange={() => setRequiredName(false)}
-                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredName ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredName ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                             />
                                             {
                                                 requiredName && (
@@ -150,12 +152,16 @@ function EditUser(props: MyComponentProps) {
                                                 <label className="font-medium text-black dark:text-white">
                                                     Username <span className="text-meta-1">*</span>
                                                 </label>
-                                                <label className="font-medium text-black dark:text-white">
-                                                    Status
-                                                </label>
+                                                {
+                                                    idUserLogin !== dataForEditUser?.id && (
+                                                        <label className="font-medium text-black dark:text-white">
+                                                            Status
+                                                        </label>
+                                                    )
+                                                }
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <div className="relative w-5/6">
+                                                <div className={`relative ${idUserLogin !== dataForEditUser?.id ? 'w-5/6' : 'w-full'}`}>
                                                     <input
                                                         type="text"
                                                         placeholder="Username"
@@ -166,7 +172,7 @@ function EditUser(props: MyComponentProps) {
                                                             setUsernameExist(false)
                                                         }
                                                         }
-                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredUsername || usernameExist ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredUsername || usernameExist ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                                     />
                                                     {
                                                         requiredUsername && (
@@ -184,27 +190,32 @@ function EditUser(props: MyComponentProps) {
 
                                                     }
                                                 </div>
-                                                <div className="mt-3">
-                                                    <label htmlFor="toggle1"
-                                                        className="flex cursor-pointer select-none items-center"
-                                                    >
-                                                        <div className="relative">
-                                                            <input
-                                                                type="checkbox"
-                                                                id="toggle1"
-                                                                className="sr-only"
-                                                                onChange={() => {
-                                                                    setUserSelected({ ...userSelected, activate: userSelected?.activate === 1 ? 0 : 1 })
-                                                                }} 
-                                                            />
-                                                            <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
-                                                            <div
-                                                                className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${userSelected?.activate === 0 ? '' : '!right-1 !translate-x-full !bg-primary dark:!bg-white'
-                                                                    }`}
-                                                            ></div>
+                                                {
+                                                    idUserLogin !== dataForEditUser?.id &&
+                                                    (
+                                                        <div className="mt-3">
+                                                            <label htmlFor="toggle1"
+                                                                className="flex cursor-pointer select-none items-center"
+                                                            >
+                                                                <div className="relative">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        id="toggle1"
+                                                                        className="sr-only"
+                                                                        onChange={() => {
+                                                                            setUserSelected({ ...userSelected, activate: userSelected?.activate === 1 ? 0 : 1 })
+                                                                        }}
+                                                                    />
+                                                                    <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
+                                                                    <div
+                                                                        className={`absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition ${userSelected?.activate === 0 ? '' : '!right-1 !translate-x-full !bg-primary dark:!bg-white'
+                                                                            }`}
+                                                                    ></div>
+                                                                </div>
+                                                            </label>
                                                         </div>
-                                                    </label>
-                                                </div>
+                                                    )
+                                                }
                                             </div>
                                         </div>
                                         <div className="flex justify-end items-center">
@@ -212,7 +223,7 @@ function EditUser(props: MyComponentProps) {
                                                 Cancel
                                             </button>
                                             <button className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray" onClick={handleSubmitEdit}>
-                                                Update User
+                                                Update
                                             </button>
                                         </div>
                                     </div>

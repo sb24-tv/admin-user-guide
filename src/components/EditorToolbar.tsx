@@ -21,9 +21,6 @@ Quill.register(Font, true);
 export const modules = {
     toolbar: {
         container: "#toolbar",
-        handlers: {
-            
-        }
     },
     history: {
         delay: 500,
@@ -49,10 +46,10 @@ export const formats = [
     "bullet",
     "indent",
     "link",
-    // "image",
+    "image",
     "video",
     "color",
-    "code-block"
+    "code-block",
 ];
 
 // Quill Toolbar component
@@ -88,7 +85,7 @@ export const QuillToolbar: React.FC = () => (
         </span>
         <span className="ql-formats">
             <button className="ql-link" />
-            {/* <button className="ql-image" /> */}
+            <button className="ql-image" />
             <button className="ql-video" />
         </span>
     </div>

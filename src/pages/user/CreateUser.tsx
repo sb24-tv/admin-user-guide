@@ -133,7 +133,7 @@ function CreateUser(props: MyComponentProps) {
                                                 placeholder="Name"
                                                 ref={nameRef}
                                                 onChange={() => setRequiredName(false)}
-                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredName ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredName ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                             />
                                             {
                                                 requiredName && (
@@ -152,7 +152,7 @@ function CreateUser(props: MyComponentProps) {
                                                 placeholder="Username"
                                                 ref={usernameRef}
                                                 onChange={() => { setRequiredUsername(false), setUsernameExist(false) }}
-                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredUsername || usernameExist ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredUsername || usernameExist ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                             />
                                             {
                                                 requiredUsername && (
@@ -188,7 +188,7 @@ function CreateUser(props: MyComponentProps) {
                                                             name="password"
                                                             ref={passwordRef}
                                                             onChange={() => setRequiredPassword(false)}
-                                                            className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredPassword ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                            className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredPassword ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                                         />
                                                         <span className="absolute right-2 top-7.5 cursor-pointer"
                                                             onClick={() => setShowPassword(!showPassword)} >

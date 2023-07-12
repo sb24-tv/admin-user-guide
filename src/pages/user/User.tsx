@@ -35,6 +35,8 @@ const User = () => {
     const handleChangePassword = (user: any) => {
         setUserEdit(user);
     }
+    const userLogin = JSON.parse(localStorage.getItem("user") || "{}");
+    const idUserLogin = userLogin?.id;
     return (
         <>
             <CreateUser show={isOpenCreateUser} onCloseCreateUser={() => setIsOpenCreateUser(false)} createdUser={() => { fetchData(); }} />
@@ -94,17 +96,24 @@ const User = () => {
                                                 }
                                             </td>
                                             <td className="py-4 px-4 pl-9 dark:border-strokedark xl:pl-11">
-                                                <p className="text-sm text-black dark:text-white">
+                                                <p className="text-base text-black dark:text-white font-medium">
                                                     {user.name ? user.name : "---"}
+                                                    {
+                                                        idUserLogin === user.id && (
+                                                            <span className="text-xs text-orange-dark ml-2">
+                                                               (You)
+                                                            </span>
+                                                        )
+                                                    }
                                                 </p>
                                             </td>
                                             <td className="py-4 px-4 pl-9 dark:border-strokedark xl:pl-11">
-                                                <p className="text-sm text-black dark:text-white">
+                                                <p className="text-base font-medium text-black dark:text-white">
                                                     {user.username}
                                                 </p>
                                             </td>
                                             <td className="py-4 px-4 dark:border-strokedark">
-                                                <p className="text-black dark:text-white">
+                                                <p className="text-black dark:text-white text-base">
                                                     {
                                                         new Date(user.createdAt).toLocaleDateString("en-US", {
                                                             weekday: "short",

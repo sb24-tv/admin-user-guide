@@ -166,7 +166,7 @@ function ChangePassword(props: MyComponentProps) {
                                                         name="password"
                                                         ref={passwordRef}
                                                         onChange={() => { setRequiredPassword(false), setInvalidPassword(false) }}
-                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredPassword || invalidPassword ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredPassword || invalidPassword ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                                     />
                                                     <span className="absolute right-2 top-7.5 cursor-pointer"
                                                         onClick={() => setShowPassword(!showPassword)} >
@@ -206,7 +206,7 @@ function ChangePassword(props: MyComponentProps) {
                                                             setMatchPassword(false)
                                                             handlePasswordChange()
                                                         }}
-                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredNewPassword ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredNewPassword ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                                     />
                                                     <span className="absolute right-2 top-7.5 cursor-pointer"
                                                         onClick={() => setShowNewPassword(!showNewPassword)} >
@@ -241,7 +241,7 @@ function ChangePassword(props: MyComponentProps) {
                                                             handlePasswordChange()
                                                         }
                                                         }
-                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredConfirmPassword ? 'border-meta-1 border-2' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
+                                                        className={`mt-3 w-full rounded-lg bg-input py-3 px-5 font-medium outline-none transition ${requiredConfirmPassword ? 'border-meta-1 border-2 dark:border-meta-1' : 'border-2 border-input'} dark:border-form-strokedark dark:bg-form-input dark:disabled:bg-black dark:text-white`}
                                                     />
                                                     <span className="absolute right-2 top-7.5 cursor-pointer"
                                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)} >

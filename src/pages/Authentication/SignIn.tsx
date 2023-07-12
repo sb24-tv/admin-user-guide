@@ -48,7 +48,7 @@ const SignIn = () => {
         <>
             <div className="flex flex-wrap items-center justify-center h-screen">
                 <div
-                    className="border-stroke dark:border-strokedark min-xl:w-1/2 max-sm:w-2/3 max-md:w-2/4 max-lg:w-1/2 max-2xl:w-1/3 w-1/4 bg-white dark:bg-boxdark rounded-xl box-shadow-custom-2">
+                    className="border-stroke dark:border-strokedark min-xl:w-1/2 max-sm:w-2/3 max-md:w-[400px] max-lg:w-[450px] max-2xl:w-[480px] w-[500px] bg-white dark:bg-boxdark rounded-xl box-shadow-custom-2">
                     <div className="w-full p-10 flex items-center flex-col justify-center">
                         <img src={Logo} alt="logo" className="w-20" />
                         <span

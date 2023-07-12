@@ -2,6 +2,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import React from "react";
 import APIService from "../../service/APIService.ts";
+import { toast } from 'react-toastify';
+
 function getURL() {
     // @ts-ignore
     if (import.meta.env.MODE === "production") {
@@ -13,6 +15,30 @@ function getURL() {
     }
 }
 class MyEditor extends React.Component<any,any> {
+     notifyError = () => {
+        toast.error('Something went wrong', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
+     notifyErrorImage = () => {
+        toast.error('Allowed only image file', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
     private quill: any;
     
     handleImageSelect = () => {
@@ -23,21 +49,28 @@ class MyEditor extends React.Component<any,any> {
 
         input.onchange = async () => {
             const file = input.files[0];
-            const reader = new FileReader();
-            const formData = new FormData();
-            formData.append('image', file);
-            try {
-                const response = await APIService.insertFormData('photo', formData);
-                const imageUrl = response.data.filenames[0];
-                reader.onload = () => {
-                    const range = this.quill.getSelection();
-                    this.quill.insertEmbed(range.index, 'image', `${getURL()}/public/images/${imageUrl}`);
-                    this.quill.setSelection(range.index + 1);
-                };
-                
-                reader.readAsDataURL(file);
-            } catch (error) {
-                console.error('Image upload failed:', error);
+            const fileName = file.name;
+            const fileExtension = fileName.split('.').pop();
+            if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
+                const reader = new FileReader();
+                const formData = new FormData();
+                formData.append('image', file);
+                try {
+                    const response = await APIService.insertFormData('photo', formData);
+                    const imageUrl = response.data.filenames[0];
+                    reader.onload = () => {
+                        const range = this.quill.getSelection();
+                        this.quill.insertEmbed(range.index, 'image', `${getURL()}/public/images/${imageUrl}`);
+                        this.quill.setSelection(range.index + 1);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    this.notifyError();
+                }
+            }
+            else {
+                this.notifyErrorImage();
             }
         };
     };

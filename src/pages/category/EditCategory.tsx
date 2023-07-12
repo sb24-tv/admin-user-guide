@@ -68,6 +68,18 @@ export default function EditCategory(props: MyComponentProps) {
             theme: "light",
         });
     };
+    const notifyErrorImage = () => {
+        toast.error('Allowed only png file', {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
 
     const [selectFile, setSelectedFile] = useState<File | null>(null);
     const [previewURL, setPreviewURL] = useState<string | null>(null);
@@ -150,7 +162,7 @@ export default function EditCategory(props: MyComponentProps) {
                     setMessageSlugExist('');
                 }
             }
-            ).catch((error) => {
+            ).catch(() => {
                 notifyError();
             }
             );
@@ -161,8 +173,15 @@ export default function EditCategory(props: MyComponentProps) {
         setRequiredImage(false);
         const file = event.target.files && event.target.files[0];
         if (file) {
-            setSelectedFile(file);
-            setPreviewURL(URL.createObjectURL(file));
+            const fileName = file.name;
+            const lastDot = fileName.lastIndexOf('.');
+            const ext = fileName.substring(lastDot + 1);
+            if (ext === 'png') {
+                setSelectedFile(file);
+                setPreviewURL(URL.createObjectURL(file));
+            } else {
+                notifyErrorImage();
+            }
         }
     };
     const handleNameChange = (event: any) => {

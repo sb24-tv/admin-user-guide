@@ -151,7 +151,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                         }`}
                                 >
                                     <FaNewspaper />
-                                    Content
+                                    Contents
                                 </NavLink>
                             </li>
                             <li>

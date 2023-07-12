@@ -141,7 +141,7 @@ const CreateContent = () => {
 
                                 <div className="mb-6 relative">
                                     <label className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Content Detail <span className="text-meta-1">*</span>
+                                        Content Detail
                                     </label>
                                     <MyEditor
                                         theme="snow"

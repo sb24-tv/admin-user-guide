@@ -1,6 +1,6 @@
 import {FaBarsStaggered, FaNewspaper, FaUserLarge} from "react-icons/fa6";
 import {useEffect, useState} from "react";
-import APIService from "../../service/APIService.ts";
+import APIService from "../service/APIService.ts";
 import {Link} from "react-router-dom";
 
 

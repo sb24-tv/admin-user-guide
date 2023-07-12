@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import  { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import Logo from '../images/logo/logo.png';
-import SidebarLinkGroup from './SidebarLinkGroup';
 import { FaNewspaper, FaUserLarge, FaBarsStaggered } from "react-icons/fa6";
 
 interface SidebarProps {

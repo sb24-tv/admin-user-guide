@@ -46,13 +46,13 @@ const SignIn = () => {
 
     return (
         <>
-            <div className="flex flex-wrap items-center justify-center h-[100vh] ">
+            <div className="flex flex-wrap items-center justify-center h-screen">
                 <div
-                    className="border-stroke dark:border-strokedark xl:w-1/4 sm:w-2/4 md:w-2/4 bg-white dark:bg-boxdark rounded-xl box-shadow-custom-2">
+                    className="border-stroke dark:border-strokedark min-xl:w-1/2 max-sm:w-2/3 max-md:w-2/4 max-lg:w-1/2 max-2xl:w-1/3 w-1/4 bg-white dark:bg-boxdark rounded-xl box-shadow-custom-2">
                     <div className="w-full p-10 flex items-center flex-col justify-center">
                         <img src={Logo} alt="logo" className="w-20" />
                         <span
-                            className="my-5 block font-normal  text-base justify-center text-center leading-6 text-gray-4">Thank you for get back to Admin User Guide, lets access our the best recommendation for your</span>
+                            className="my-5 block font-normal  text-base max-md:text-sm justify-center text-center leading-6 text-gray-4">Thank you for get back to Admin User Guide, lets access our the best recommendation for your</span>
                         <div className="w-full">
                             <div className="mb-6 relative">
                                 <label className="mb-2.5 block font-medium text-gray-5 text-base dark:text-white">

@@ -47,16 +47,16 @@ const DropdownUser = () => {
   });
   
   const handleLogout = async () => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const id = user.id;
-    APIService.post('users/logout', { id })
-      .then((res: any) => {
-        if (res.status === StatusCodes.OK) {
-          localStorage.removeItem('user');
-          window.location.href = '/';
-        }
-      }
-      )
+    localStorage.removeItem('user');
+    window.location.href = '/';
+    // const user = JSON.parse(localStorage.getItem('user') || '{}');
+    // const id = user.id;
+    // APIService.post('users/logout', { id })
+    //   .then((res: any) => {
+    //     if (res.status === StatusCodes.OK) {
+    //     }
+    //   }
+    //   )
   }
 
   return (

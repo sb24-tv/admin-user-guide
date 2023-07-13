@@ -260,3 +260,11 @@ input::-webkit-inner-spin-button {
       height: 200px !important;
   }
 }
+
+.custom-quill .ql-editor::before {
+  color: #777777 !important;
+  font-style: normal !important;
+}
+.dark .custom-quill .ql-editor::before {
+  color: #d9d9d9 !important;
+}

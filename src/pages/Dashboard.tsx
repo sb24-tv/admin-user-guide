@@ -2,38 +2,50 @@ import {FaBarsStaggered, FaNewspaper, FaUserLarge} from "react-icons/fa6";
 import {useEffect, useState} from "react";
 import APIService from "../service/APIService.ts";
 import {Link} from "react-router-dom";
+import Loader from "../common/Loader/index.tsx";
+import { StatusCodes } from "../enum/index.ts";
 
 
 const ECommerce = () => {
     const [countCategory, setCountCategory] = useState(0)
     const [countContent, setCountContent] = useState(0)
     const [countUser, setCountUser] = useState(0)
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         APIService.get(`category`).then((response: any) => {
-            if (response.status == 200) {
+            if (response.status == StatusCodes.OK) {
                 setCountCategory(response.data.length);
+                setLoading(false);
             }
         })
 
         APIService.get(`content`).then((response: any) => {
-            if (response.status == 200) {
+            if (response.status == StatusCodes.OK) {
                 setCountContent(response.data.pagination.total);
+                setLoading(false);
             }
         })
 
         APIService.get(`users`).then((response: any) => {
-            if (response.status == 200) {
+            if (response.status == StatusCodes.OK) {
                 setCountUser(response.data.length);
+                setLoading(false);
             }
         })
 
     }, []);
     return (
+        loading ?
+        (
+            <Loader />
+        )
+        :
+
         <>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-7.5">
                 <Link to="/category"
-                    className="rounded-xl bg-white py-6 px-7.5  box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2">
+                    className="rounded-xl bg-white py-6 px-7.5  box-shadow-custom-2 dark:border-strokedark dark:bg-black-custom">
                     <div
                         className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
                         <FaBarsStaggered className="fill-orange-dark dark:fill-white"/>
@@ -49,7 +61,7 @@ const ECommerce = () => {
                     </div>
                 </Link>
                 <Link to="/content"
-                    className="rounded-xl bg-white py-6 px-7.5 box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2">
+                    className="rounded-xl bg-white py-6 px-7.5 box-shadow-custom-2 dark:border-strokedark dark:bg-black-custom">
                     <div
                         className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
                         <FaNewspaper className="fill-orange-dark dark:fill-white"/>
@@ -65,7 +77,7 @@ const ECommerce = () => {
                     </div>
                 </Link>
                 <Link to="/user"
-                    className="rounded-xl bg-white py-6 px-7.5 box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2">
+                    className="rounded-xl bg-white py-6 px-7.5 box-shadow-custom-2 dark:border-strokedark dark:bg-black-custom">
                     <div
                         className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
                         <FaUserLarge className="fill-orange-dark dark:fill-white"/>

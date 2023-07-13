@@ -5,6 +5,7 @@ import ChangePassword from "./ChangePassword.tsx";
 import CreateUser from "./CreateUser.tsx";
 import EditUser from "./EditUser.tsx";
 import { StatusCodes } from "../../enum/index.ts";
+import Loader from "../../common/Loader/index.tsx";
 
 const User = () => {
     const [users, setUser] = useState<any>([]);
@@ -14,10 +15,12 @@ const User = () => {
 
     const [userEdit, setUserEdit] = useState<any>([]);
     const [dataForEdit, setDataForEdit] = useState<any>([]);
+    const [loading, setLoading] = useState<boolean>(true);
     const fetchData = () => {
         APIService.get('users').then((response: any) => {
             if (response.status === StatusCodes.OK) {
                 setUser(response.data);
+                setLoading(false);
             }
         });
     }
@@ -38,6 +41,12 @@ const User = () => {
     const userLogin = JSON.parse(localStorage.getItem("user") || "{}");
     const idUserLogin = userLogin?.id;
     return (
+        loading ?
+        (
+            <Loader />
+        )
+        :
+        
         <>
             <CreateUser show={isOpenCreateUser} onCloseCreateUser={() => setIsOpenCreateUser(false)} createdUser={() => { fetchData(); }} />
             <EditUser show={isOpenEdit} onCloseEditUser={onCloseEditUser} dataForEditUser={dataForEdit} updatedUser={() => { fetchData(); }} />
@@ -49,7 +58,7 @@ const User = () => {
                 </h2>
             </div>
             <div
-                className="rounded-xl bg-white px-5 pt-6 pb-2.5 box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2 sm:px-7.5 xl:pb-1">
+                className="rounded-xl bg-white px-5 pt-6 pb-2.5 box-shadow-custom-2 dark:border-strokedark dark:bg-black-custom sm:px-7.5 xl:pb-1">
                 <div className="max-w-full overflow-x-auto">
                     <div className="flex justify-end mb-3">
                         <div className="inline-flex items-center justify-center rounded-full bg-primary py-2.5 px-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-5 xl:px-6 cursor-pointer"

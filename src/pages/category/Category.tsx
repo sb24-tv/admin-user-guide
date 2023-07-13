@@ -6,6 +6,7 @@ import { FaRegPenToSquare } from "react-icons/fa6";
 import CreateCategory from "./CreateCategory.tsx";
 import EditCategory from "./EditCategory.tsx";
 import NoFile from "../../images/logo/no-task.png";
+import Loader from "../../common/Loader/index.tsx";
 
 function getURL() {
     // @ts-ignore
@@ -27,9 +28,11 @@ const Category = () => {
     const [category, setCategory] = useState([]);
     // This for create category
     let [open, setOpen] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
     const fetchData = () => {
         APIService.get('subcat').then((response: any) => {
             setCategory(response.data.data);
+            setLoading(false);
         });
     }
     useEffect(() => {
@@ -51,6 +54,12 @@ const Category = () => {
         setOpenEdit(false);
     }
     return (
+        loading ?
+        (
+            <Loader />
+        )
+        :
+
         <>
             <CreateCategory show={open} onCloseCreateCategory={onCloseCreateCategory} createCategory={() => fetchData()} />
             <EditCategory show={openEdit} onCloseEditCategory={onCloseEditCategory} dataForEditCategory={dataForEdit} updateCategory={() => fetchData()} />
@@ -60,7 +69,7 @@ const Category = () => {
                 </h2>
             </div>
             <div
-                className="rounded-xl bg-white px-5 pt-6 pb-2.5 box-shadow-custom-2 dark:border-strokedark dark:bg-gray-box-2 sm:px-7.5 xl:pb-1 ">
+                className="rounded-xl bg-white px-5 pt-6 pb-2.5 box-shadow-custom-2 dark:border-strokedark dark:bg-black-custom sm:px-7.5 xl:pb-1 ">
                 <div className="max-w-full overflow-x-auto">
                     <div className="flex justify-between items-center mb-3">
                         <div>

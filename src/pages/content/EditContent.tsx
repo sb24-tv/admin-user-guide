@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { FaCaretDown, FaCheck } from "react-icons/fa6";
 import 'react-quill/dist/quill.snow.css';
 import MyEditor from "./MyEditor"
+import Loader from "../../common/Loader/index.tsx";
 
 const EditContent = () => {
 	const titleRef = useRef<any>(null);
@@ -16,6 +17,7 @@ const EditContent = () => {
 	const [contentById, setContentById] = useState<any>([]);
 	const [contentSelected, setContentSelected] = useState<any>([]);
 	const [categorySelected, setCategorySelected] = useState<any>([]);
+	const [loading, setLoading] = useState<boolean>(true);
 	
 	const navigate = useNavigate();
 	let { id } = useParams();
@@ -67,6 +69,7 @@ const EditContent = () => {
 		APIService.get(`content/${id}`).then((response: any) => {
 			if (response.status === StatusCodes.OK) {
 				setContentById(response.data);
+				setLoading(false);
 			}
 		});
 	}, []);
@@ -128,6 +131,12 @@ const EditContent = () => {
 	
 	
 	return (
+		loading ?
+		(
+			<Loader />
+		)
+		:
+
 		<>
 			<div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<h2 className="text-title-md2 font-semibold text-black dark:text-white">

@@ -1,22 +1,24 @@
 import React, { Fragment, useState, useEffect } from "react";
 import APIService from "../../service/APIService.ts";
 import { Dialog, Transition } from '@headlessui/react'
-import { useSearchParams } from "react-router-dom";
-import { StatusCodes } from "../../enum/index.ts";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { StatusCodes, searchDataById } from "../../enum/index.ts";
 import { FiChevronDown, FiCheck } from "react-icons/fi";
 
 interface PropsCategory {
     show: boolean;
     onCloseFilterCategory: any;
-    // filterCategoryById: () => void;
 }
 
 export default function FilterCategory({ show, onCloseFilterCategory }: PropsCategory) {
-    const [category, setCategory] = useState([]);
-    const [showSubCategory, setSubCategory] = useState<boolean>(false);
+    const [category, setCategory] = useState<any>([]);
     const [openId, setOpenId] = useState<number>(0);
-    const [getId, setGetId] = useState<number>(0);
     const [requiredCategory, setRequiredCategory] = useState<boolean>(false);
+    const [getCategoryId] = useSearchParams();
+    const categoryIdParam = getCategoryId.get("categoryId");
+    const [categorySelected, setCategorySelected] = useState<any>([]);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         APIService.get(`subcat`).then((response: any) => {
@@ -26,22 +28,38 @@ export default function FilterCategory({ show, onCloseFilterCategory }: PropsCat
         });
     }, []);
 
+    const getParentId: any = categoryIdParam ? searchDataById(categoryIdParam ? Number(categoryIdParam) : 0, category) : null;
+    const contentById: any | null = getParentId ? category[getParentId.position[0]].id : null;
+    
+    const handleCategory = (id: number) => {
+        setOpenId(() => id === openId ? 0 : id);
+    }
+    
+    useEffect(() => {
+        setCategorySelected(categoryIdParam ? Number(categoryIdParam) : 0);
+        setOpenId(contentById);
+    }, [categoryIdParam, contentById]);
+
+    const handleApply = async () => {
+        const category = categorySelected;
+        if (!category) {
+            if (!category) setRequiredCategory(true);
+            return;
+        }
+        navigate(`/content?categoryId=${category}`);
+        onCloseFilterCategory();
+
+    }
     const onClose = () => {
         onCloseFilterCategory();
+        setRequiredCategory(false);
+        setOpenId(contentById);
+        setCategorySelected(categoryIdParam ? Number(categoryIdParam) : 0);
     }
-    const handleCategory = (id: number) => {
-        if (openId === id) {
-            setSubCategory(!showSubCategory);
-            setOpenId(id);
-            setGetId(0);
-        }
-        if (openId !== id) {
-            setSubCategory(true);
-            setOpenId(id);
-            setGetId(0);
-        }
+    const onClickSelectCategory = (id: number) => {
+        setRequiredCategory(false);
+        setCategorySelected(id);
     }
-
     return (
         <Transition appear show={show} as={Fragment}>
             <Dialog as="div" className="relative z-999" onClose={onClose}>
@@ -79,7 +97,7 @@ export default function FilterCategory({ show, onCloseFilterCategory }: PropsCat
                                         <div className="max-lg:w-[400px] max-md:w-[350px] max-sm:w-[250px] w-[400px]">
                                             <div className="relative bg-transparent">
                                                 <div
-                                                    className="w-full flex flex-col h-[78vh] overflow-y-auto rounded mb-2"
+                                                    className="w-full flex flex-col h-[75vh] overflow-y-auto rounded mb-2 overflow-hidden"
                                                 >
                                                     {
                                                         category.map((item: any, index: number) => {
@@ -87,21 +105,24 @@ export default function FilterCategory({ show, onCloseFilterCategory }: PropsCat
                                                                 <React.Fragment key={index}>
                                                                     <div
                                                                         className={`relative pl-4 py-2 p-1 my-0.5 rounded-md bg-[#f4f5f6] dark:bg-gray-box ${item.subcategories.length > 0 ? 'cursor-pointer' : 'cursor-default'}`}
-                                                                        onClick={() => handleCategory(item.id)}>
-                                                                        <span className="text-boxdark-2 font-semibold">
+                                                                        onClick={() => {
+                                                                            handleCategory(item.id);
+                                                                        }}
+                                                                    >
+                                                                        <span className="text-orange-dark font-semibold">
                                                                             {item.name}
                                                                         </span>
                                                                         {
                                                                             item.subcategories.length > 0 &&
                                                                             <span
-                                                                                className={`absolute top-1/2 right-4 z-30 -translate-y-1/2 ${openId === item.id && showSubCategory ? 'transform rotate-180 transition duration-500' : 'transform rotate-0 transition duration-500'}`}
+                                                                                className={`absolute top-1/2 right-4 z-30 -translate-y-1/2 ${openId === item.id ? 'transform rotate-180 transition duration-500' : 'transform rotate-0 transition duration-500'}`}
                                                                             >
                                                                                 <FiChevronDown className="text-body" />
                                                                             </span>
                                                                         }
                                                                     </div>
                                                                     {
-                                                                        openId === item.id && showSubCategory && item.subcategories.length > 0 &&
+                                                                        openId === item.id && item.subcategories.length > 0 &&
                                                                         <div className="flex flex-col gap-1.5 pl-4">
                                                                             {
                                                                                 item.subcategories.map((sub: any, index: number) => {
@@ -118,16 +139,15 @@ export default function FilterCategory({ show, onCloseFilterCategory }: PropsCat
                                                                                                             id={`checkbox-${sub.id}`}
                                                                                                             className="sr-only"
                                                                                                             onChange={() => {
-                                                                                                                setGetId(sub.id)
-                                                                                                                setRequiredCategory(false)
+                                                                                                                onClickSelectCategory(sub.id);
                                                                                                             }}
                                                                                                         />
                                                                                                         <div
-                                                                                                            className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${getId === sub.id && 'border-primary bg-gray dark:bg-transparent'
+                                                                                                            className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${categorySelected === sub.id && 'border-primary bg-gray dark:bg-transparent'
                                                                                                                 }`}
                                                                                                         >
                                                                                                             <span
-                                                                                                                className={`h-2.5 w-2.5 rounded-sm ${getId === sub.id && 'bg-primary'}`}
+                                                                                                                className={`h-2.5 w-2.5 rounded-sm ${categorySelected === sub.id && 'bg-primary'}`}
                                                                                                             ></span>
                                                                                                         </div>
                                                                                                     </div>
@@ -151,14 +171,13 @@ export default function FilterCategory({ show, onCloseFilterCategory }: PropsCat
                                                                                                                             id={`checkbox-${sub2.id}`}
                                                                                                                             className="sr-only"
                                                                                                                             onChange={() => {
-                                                                                                                                setGetId(sub2.id)
-                                                                                                                                setRequiredCategory(false)
+                                                                                                                                onClickSelectCategory(sub2.id)
                                                                                                                             }}
                                                                                                                         />
-                                                                                                                        <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded-full border ${getId === sub2.id && 'border-primary'
+                                                                                                                        <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded-full border ${categorySelected === sub2.id && 'border-primary'
                                                                                                                             }`}
                                                                                                                         >
-                                                                                                                            <span className={`h-2.5 w-2.5 rounded-full bg-transparent ${getId === sub2.id && '!bg-primary'
+                                                                                                                            <span className={`h-2.5 w-2.5 rounded-full bg-transparent ${categorySelected === sub2.id && '!bg-primary'
                                                                                                                                 }`}
                                                                                                                             >
                                                                                                                                 {' '}
@@ -184,13 +203,12 @@ export default function FilterCategory({ show, onCloseFilterCategory }: PropsCat
                                                                                                                                         id={`checkbox-${sub3.id}`}
                                                                                                                                         className="sr-only"
                                                                                                                                         onChange={() => {
-                                                                                                                                            setGetId(sub3.id)
-                                                                                                                                            setRequiredCategory(false)
+                                                                                                                                            onClickSelectCategory(sub3.id);
                                                                                                                                         }}
                                                                                                                                     />
-                                                                                                                                    <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${getId === sub3.id && 'border-primary bg-gray dark:bg-transparent'
+                                                                                                                                    <div className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${categorySelected === sub3.id && 'border-primary bg-gray dark:bg-transparent'
                                                                                                                                         }`} >
-                                                                                                                                        <span className={`opacity-0 ${getId === sub3.id && '!opacity-100'}`}>
+                                                                                                                                        <span className={`opacity-0 ${categorySelected === sub3.id && '!opacity-100'}`}>
                                                                                                                                             <FiCheck className="text-primary" />
                                                                                                                                         </span>
                                                                                                                                     </div>
@@ -222,23 +240,22 @@ export default function FilterCategory({ show, onCloseFilterCategory }: PropsCat
                                                     {
                                                         requiredCategory && <span className="text-meta-1 text-sm absolute left-0 -bottom-7">Category is required</span>
                                                     }
-                                                    <span className="text-meta-1 text-sm absolute left-0 -bottom-7">Category is required</span>
+                                                    <div
+                                                        className="absolute -bottom-20 inset-x-0 flex items-center justify-center px-5 mt-1"
+                                                    >
+                                                        <div className="flex justify-end items-center">
+                                                            <button className="flex justify-center bg-transparent border border-meta-9 px-8 py-2 rounded-md font-medium text-black dark:text-white mr-3.5" onClick={onClose}>
+                                                                Close
+                                                            </button>
+                                                            <button className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray" onClick={handleApply}>
+                                                                Apply
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                    </div>
-                                    <div
-                                        className="absolute bottom-25 inset-x-0 flex items-center justify-center h-20 px-5 mt-1"
-                                    >
-                                        <div className="flex justify-end items-center">
-                                            <button className="flex justify-center bg-transparent border border-meta-9 px-8 py-2 rounded-md font-medium text-black dark:text-white mr-3.5" onClick={onClose}>
-                                                Close
-                                            </button>
-                                            <button className="flex justify-center bg-primary px-8 py-2 rounded-md font-medium text-gray" >
-                                                Apply
-                                            </button>
-                                        </div>
                                     </div>
                                 </div>
                             </Dialog.Panel>

@@ -6,6 +6,8 @@ import { FaRegPenToSquare } from "react-icons/fa6";
 import { FiSearch, FiX, FiFilter, FiTrash2 } from "react-icons/fi";
 import { StatusCodes } from '../../enum/index.ts';
 import NoArticle from "../../images/logo/article.png"
+import Filter from "../../images/logo/filter.png"
+import NoResult from "../../images/logo/no-results.png"
 import Loader from "../../common/Loader/index.tsx";
 import FilterCategory from "./FilterCategory.tsx";
 const Content = () => {
@@ -13,13 +15,18 @@ const Content = () => {
     const [searchParams] = useSearchParams();
     const [content, setContent] = useState<any>([]);
     const [searchResult, setSearchResult] = useState<any>([]);
+    const [filterCategoryResult, setFilterCategoryResult] = useState<any>([]);
 
     const [pages, setPage] = useState<any>([]);
     const [pagesSearch, setPageSearch] = useState<any>([]);
+    const [pagesCategory, setPageCategory] = useState<any>([]);
+
     const page = searchParams.get('page');
     const searchKey = searchParams.get('search');
     const [loading, setLoading] = useState<boolean>(true);
     const [show, setIsOpen] = useState<boolean>(false);
+    const [getCategoryId] = useSearchParams();
+    const categoryIdParam = getCategoryId.get("categoryId");
 
     const searchRef = useRef<any>("");
 
@@ -34,7 +41,6 @@ const Content = () => {
         if (searchKey) {
             APIService.get(`contents?search=${searchKey}${page ? `&page=${page}` : ''}`)
                 .then((response: any) => {
-                    // Handle the response data
                     if (response.status === StatusCodes.OK) {
                         setSearchResult(response.data.data);
                         setPageSearch(response.data.pagination);
@@ -42,12 +48,25 @@ const Content = () => {
                 }
                 )
         }
-    }, [page]);
+        if (categoryIdParam) {
+            APIService.get(`content?categoryId=${categoryIdParam}${page ? `&page=${page}` : ''}`)
+                .then((response: any) => {
+                    if (response.status === StatusCodes.OK) {
+                        setFilterCategoryResult(response.data.data);
+                        setPageCategory(response.data.pagination);
+                    }
+                }
+                )
+        }
+    }, [page, searchKey, categoryIdParam]);
     // @ts-ignore
     const handlePagination = (currents: any) => {
         setPage({ ...pages, current_page: currents });
         if (searchKey) {
             setPageSearch({ ...pagesSearch, current_page: currents });
+        }
+        if (categoryIdParam) {
+            setPageCategory({ ...pagesCategory, current_page: currents });
         }
     };
     const handleSearch = () => {
@@ -128,24 +147,27 @@ const Content = () => {
                                             searchKey &&
                                             <span className="absolute right-3 bg-[#CBCBCB] dark:bg-[#2F3D47] text-gray-2 top-3 p-1 rounded-full cursor-pointer" onClick={() => { navigate('/content'); }
                                             }>
-                                                <FiX className="w-3 h-3" />
+                                                <FiX className="w-3.5 h-3.5" />
                                             </span>
                                         }
                                     </div>
 
                                     <button
-                                        className="ml-2 border border-meta-9  inline-flex items-center justify-center rounded-full bg-transparent py-2.5 px-4 text-center font-medium text-[#0d0c22] hover:bg-[#f3f3f4] lg:px-5 xl:px-6"
+                                        className="ml-2 border border-meta-9 dark:border-[#2F3D47]  dark:text-white inline-flex items-center justify-center rounded-full bg-transparent py-2.5 px-4 text-center font-medium text-[#0d0c22] hover:bg-[#f3f3f4] dark:hover:bg-gray-box-2 lg:px-5 xl:px-6 outline-none focus:outline-none"
                                         onClick={() => setIsOpen(true)}
                                     >
                                         <FiFilter className="mr-2" /> <span>Filter</span>
                                     </button>
-                                    <button
-                                        className="ml-2 border border-meta-1  inline-flex items-center justify-center rounded-full bg-meta-1 py-2.5 px-4 text-center font-medium text-white hover:bg-opacity-90
-                                        lg:px-5 xl:px-6"
-                                        onClick={() => { navigate('/content'); }}
-                                    >
-                                        <FiTrash2 className="mr-2" /> <span>Clear</span>
-                                    </button>
+                                    {
+                                        categoryIdParam &&
+                                        <button
+                                            className="ml-2 border border-meta-1  inline-flex items-center justify-center rounded-full bg-meta-1 py-2.5 px-4 text-center font-medium text-white hover:bg-opacity-90
+                                        lg:px-4.5 xl:px-5"
+                                            onClick={() => { navigate('/content'); }}
+                                        >
+                                            <FiTrash2 className="mr-2" /> <span>Clear</span>
+                                        </button>
+                                    }
                                 </div>
                                 <Link
                                     to="create"
@@ -182,7 +204,7 @@ const Content = () => {
                                 </thead>
                                 <tbody>
                                     {
-                                        !searchKey && content &&
+                                        !searchKey && !categoryIdParam && content &&
                                         (
                                             content.length > 0 ?
                                                 content.map((item: any, index: number) => (
@@ -255,7 +277,7 @@ const Content = () => {
                                                         <div className="w-full flex flex-col items-center justify-center">
                                                             <img src={NoArticle} alt="No Category" className="w-25 my-4 text-center" />
                                                             <p className="text-sm text-black dark:text-white text-center">
-                                                                No Content
+                                                                Empty content
                                                             </p>
                                                         </div>
                                                     </td>
@@ -266,7 +288,7 @@ const Content = () => {
                                     {
                                     }
                                     {
-                                        searchKey &&
+                                        searchKey && !categoryIdParam &&
                                         (
                                             searchResult.length > 0 ?
                                                 searchResult.map((item: any, index: number) => (
@@ -337,13 +359,95 @@ const Content = () => {
                                                 <tr>
                                                     <td colSpan={6} className="py-4 px-4 dark:border-strokedark">
                                                         <div className="w-full flex flex-col items-center justify-center">
-                                                            <img src={NoArticle} alt="No Category" className="w-25 my-4 text-center" />
+                                                            <img src={NoResult} alt="No Category" className="w-25 my-4 text-center" />
                                                             <p className="text-sm text-black dark:text-white text-center">
-                                                                No result found
+                                                                Search no results
                                                             </p>
                                                         </div>
                                                     </td>
-                                                </tr>)
+                                                </tr>
+                                        )
+                                    }
+                                    {
+                                        categoryIdParam &&
+                                        (
+                                            filterCategoryResult.length > 0 ?
+                                                filterCategoryResult.map((item: any, index: number) => (
+                                                    <tr key={index} className="border-b border-[#eee] dark:border-graydark last:border-b-0">
+                                                        <td className="py-5 pl-9 dark:border-strokedark xl:pl-11">
+                                                            {
+                                                                pages.current_page === 1 ? (
+                                                                    <p className="text-sm text-black dark:text-white">
+                                                                        {index + 1}
+                                                                    </p>
+                                                                ) : (
+                                                                    <p className="text-sm text-black dark:text-white">
+                                                                        {(pages.current_page - 1) * pages.limit + index + 1}
+                                                                    </p>
+                                                                )
+                                                            }
+                                                        </td>
+                                                        <td className="py-5 px-4 pl-9 max-w-[300px] dark:border-strokedark xl:pl-11">
+                                                            <h5 className="font-medium text-black dark:text-white">
+                                                                {item.title}
+                                                            </h5>
+                                                        </td>
+                                                        <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                                            <span className="font-medium dark:text-white text-orange-dark ">
+                                                                {item.category.name}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                                                            <span className="font-semibold dark:text-white capitalize">
+                                                                {item.user ? item.user.name : "N/A"}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-5 px-4 dark:border-strokedark">
+                                                            <p className="text-black dark:text-white">
+                                                                {new Date(item.createdAt).toLocaleDateString("en-US", {
+                                                                    weekday: "short",
+                                                                    year: "numeric",
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                })
+                                                                }
+                                                            </p>
+                                                        </td>
+                                                        <td className="py-5 px-4 dark:border-strokedark">
+                                                            {
+                                                                item.allowPublic === true ? (
+                                                                    <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-success">
+                                                                        Active
+                                                                    </p>
+                                                                ) : (
+                                                                    <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-danger">
+                                                                        Disable
+                                                                    </p>
+                                                                )
+                                                            }
+                                                        </td>
+                                                        <td className="py-5 px-4 dark:border-strokedark">
+                                                            <div className="flex items-center space-x-3.5">
+                                                                <Link to={`edit/${item.id}`}
+                                                                    className="hover:text-primary">
+                                                                    <FaRegPenToSquare />
+                                                                </Link>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                                :
+                                                <tr>
+                                                    <td colSpan={6} className="py-4 px-4 dark:border-strokedark">
+                                                        <div className="w-full flex flex-col items-center justify-center">
+                                                            <img src={Filter} alt="No Category" className="w-25 my-4 text-center" />
+                                                            <p className="text-sm text-black dark:text-white text-center">
+                                                                Filter no results
+                                                            </p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                        )
                                     }
                                 </tbody>
                             </table>
@@ -351,7 +455,7 @@ const Content = () => {
                         <div className="flex justify-between items-center mb-3">
                             <span>
                                 {
-                                    !searchKey && content &&
+                                    !searchKey && !categoryIdParam && content &&
                                     (
                                         content.length === 0 && pages.total === 0 ?
                                             null
@@ -385,7 +489,7 @@ const Content = () => {
                                     )
                                 }
                                 {
-                                    searchKey &&
+                                    searchKey && !categoryIdParam &&
                                     (
                                         searchResult.length === 0 && pagesSearch.total === 0 ?
                                             null
@@ -418,11 +522,47 @@ const Content = () => {
                                                 </>
                                     )
                                 }
+                                {
+                                    categoryIdParam &&
+                                    (
+                                        filterCategoryResult.length === 0 && pagesCategory.total === 0 ?
+                                            null
+                                            :
+                                            pagesCategory.total < pagesCategory.limit
+                                                ?
+                                                <>
+                                                    Showing all
+                                                    {
+                                                        pagesCategory ? ' ' + pagesCategory.total + ' ' : 0
+                                                    }
+                                                    results
+                                                </>
+                                                :
+                                                <>
+                                                    Showing
+                                                    {
+                                                        pagesCategory.total === 0
+                                                            ?
+                                                            ` 0 - 0 `
+                                                            :
+                                                            ` ${(pagesCategory.current_page - 1) * pagesCategory.limit + 1} - ${(pagesCategory.current_page - 1) * pagesCategory.limit + filterCategoryResult.length} `
+
+                                                    }
+                                                    of
+                                                    {
+                                                        pagesCategory ? ' ' + pagesCategory.total + ' ' : 0
+                                                    }
+                                                    results
+                                                </>
+                                    )
+                                }
                             </span>
+                            {/* @ts-ignore */}
                             <Pagination
-                                pages={searchKey ? pagesSearch : pages}
+                                pages={searchKey ? pagesSearch : categoryIdParam ? pagesCategory : pages}
                                 pagination={handlePagination}
                                 searchKey={searchKey}
+                                categoryId={categoryIdParam}
                             />
                         </div>
                     </div>

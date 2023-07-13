@@ -9,16 +9,17 @@ interface PaginationProps {
         current_page: number;
     };
     searchKey: any;
+    categoryId: any;
 }
 
-function Pagination({ pagination, pages, searchKey }: PaginationProps) {
+function Pagination({ pagination, pages, searchKey, categoryId }: PaginationProps) {
     const handlePagination = (current: any) => {
         pagination(current);
     };
     const totalPage = Math.ceil(pages.total / pages.limit);
     const currentPage = pages.current_page;
 
-    const filterKey = searchKey ? `?search=${searchKey}&` : '';
+    const filterKey = searchKey ? `?search=${searchKey}&` : categoryId ? `?categoryId=${categoryId}&` : '';
     return (
         totalPage >= 2 &&
         <ul className="flex items-center justify-start h-full gap-x-4 mt-6 flex-wrap">

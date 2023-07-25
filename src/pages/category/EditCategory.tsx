@@ -263,7 +263,7 @@ export default function EditCategory(props: MyComponentProps) {
                                     as="h3"
                                     className="text-[20px] font-medium leading-6 text-black-box text-center dark:text-white2"
                                 >
-                                    Create Category
+                                    Edit Category
                                 </Dialog.Title>
                                 <div className="rounded-sm dark:border-strokedark dark:bg-boxdark">
                                     <div className="flex flex-col gap-5.5 p-6.5">

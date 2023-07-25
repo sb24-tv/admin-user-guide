@@ -65,7 +65,7 @@ const Category = () => {
             <EditCategory show={openEdit} onCloseEditCategory={onCloseEditCategory} dataForEditCategory={dataForEdit} updateCategory={() => fetchData()} />
             <div className="mb-6 flex flex-col gap-3 sm:flex-row items-center">
                 <h2 className="text-title-md2 font-semibold text-black dark:text-white">
-                    Category
+                    Categories
                 </h2>
             </div>
             <div

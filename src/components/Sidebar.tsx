@@ -140,7 +140,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                         }`}
                                 >
                                     <FaBarsStaggered />
-                                    Category
+                                    Categories
                                 </NavLink>
                             </li>
                             <li>
@@ -162,7 +162,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                         }`}
                                 >
                                     <FaUserLarge />
-                                    User
+                                    Users
                                 </NavLink>
                             </li>
                         </ul>
